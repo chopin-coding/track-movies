@@ -1,21 +1,22 @@
 import pytest
 
 from api.entities.movie import Movie
+# noinspection PyUnresolvedReferences
+from api._tests.fixtures import memory_movie_repo_fixture
 from api.repository.movie.abstractions import RepositoryException
 from api.repository.movie.memory import MemoryMovieRepository
 
 
 @pytest.mark.asyncio
-async def test_create():
-    repo = MemoryMovieRepository()
+async def test_create(memory_movie_repo_fixture):
     test_movie = Movie(
         movie_id="test",
         title="test movie",
         description="test description",
         release_year=1999,
     )
-    await repo.create(test_movie)
-    assert await repo.get_by_id("test") is test_movie
+    await memory_movie_repo_fixture.create(test_movie)
+    assert await memory_movie_repo_fixture.get_by_id("test") is test_movie
 
 
 @pytest.mark.parametrize(
@@ -43,12 +44,11 @@ async def test_create():
     ],
 )
 @pytest.mark.asyncio
-async def test_get_by_id(movies_seed, movie_id, expected_result):
-    repo = MemoryMovieRepository()
+async def test_get_by_id(memory_movie_repo_fixture, movies_seed, movie_id, expected_result):
     for movie in movies_seed:
-        await repo.create(movie)
+        await memory_movie_repo_fixture.create(movie)
     # noinspection PyTypeChecker
-    movie = await repo.get_by_id(movie_id=movie_id)
+    movie = await memory_movie_repo_fixture.get_by_id(movie_id=movie_id)
     assert movie == expected_result
 
 
@@ -124,19 +124,17 @@ async def test_get_by_id(movies_seed, movie_id, expected_result):
     ],
 )
 @pytest.mark.asyncio
-async def test_get_by_title(movies_seed, movie_title, expected_result):
-    repo = MemoryMovieRepository()
+async def test_get_by_title(memory_movie_repo_fixture, movies_seed, movie_title, expected_result):
     for movie in movies_seed:
-        await repo.create(movie)
+        await memory_movie_repo_fixture.create(movie)
     # noinspection PyTypeChecker
-    movie = await repo.get_by_title(title=movie_title)
+    movie = await memory_movie_repo_fixture.get_by_title(title=movie_title)
     assert movie == expected_result
 
 
 @pytest.mark.asyncio
-async def test_update():
-    repo = MemoryMovieRepository()
-    await repo.create(
+async def test_update(memory_movie_repo_fixture):
+    await memory_movie_repo_fixture.create(
         Movie(
             movie_id="my-id9",
             title="test_title",
@@ -145,7 +143,7 @@ async def test_update():
             watched=False,
         )
     )
-    await repo.update(
+    await memory_movie_repo_fixture.update(
         movie_id="my-id9",
         update_parameters={
             "title": "updated title",
@@ -154,7 +152,7 @@ async def test_update():
             "watched": True,
         },
     )
-    movie = await repo.get_by_id("my-id9")
+    movie = await memory_movie_repo_fixture.get_by_id("my-id9")
     assert movie == Movie(
         movie_id="my-id9",
         title="updated title",
@@ -165,9 +163,8 @@ async def test_update():
 
 
 @pytest.mark.asyncio
-async def test_update_negative():
-    repo = MemoryMovieRepository()
-    await repo.create(
+async def test_update_negative(memory_movie_repo_fixture):
+    await memory_movie_repo_fixture.create(
         Movie(
             movie_id="my-id8",
             title="test_title",
@@ -177,15 +174,14 @@ async def test_update_negative():
     )
 
     with pytest.raises(RepositoryException):
-        await repo.update(
+        await memory_movie_repo_fixture.update(
             movie_id="my_id8", update_parameters={"id": "trying to change the ID"}
         )
 
 
 @pytest.mark.asyncio
-async def test_delete():
-    repo = MemoryMovieRepository()
-    await repo.create(
+async def test_delete(memory_movie_repo_fixture):
+    await memory_movie_repo_fixture.create(
         Movie(
             movie_id="my-id6",
             title="test_title",
@@ -194,5 +190,5 @@ async def test_delete():
         )
     )
 
-    await repo.delete("my_id6")
-    assert await repo.get_by_id("my_id6") is None
+    await memory_movie_repo_fixture.delete("my_id6")
+    assert await memory_movie_repo_fixture.get_by_id("my_id6") is None
