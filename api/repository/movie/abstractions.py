@@ -36,6 +36,12 @@ class MovieRepository(abc.ABC):
         """
         raise NotImplementedError
 
+    async def get_all(self) -> typing.List[Movie]:
+        """
+        Returns the list of all the movies in the DB.
+        """
+        raise NotImplementedError
+
     async def update(self, movie_id: str, update_parameters: dict):
         """
         Update a movie by ID.

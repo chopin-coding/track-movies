@@ -62,6 +62,21 @@ class MongoMovieRepository(MovieRepository):
             )
         return return_value
 
+    async def get_all(self) -> typing.List[Movie]:
+        return_value: typing.List[Movie] = []
+        documents = self._movies.find()
+        async for document in documents:
+            return_value.append(
+                Movie(
+                    movie_id=document.get("id"),
+                    title=document.get("title"),
+                    description=document.get("description"),
+                    release_year=document.get("release_year"),
+                    watched=document.get("watched"),
+                )
+            )
+        return return_value
+
     async def update(self, movie_id: str, update_parameters: dict):
         if "id" in update_parameters.keys():
             raise RepositoryException("can't update movie ID")
