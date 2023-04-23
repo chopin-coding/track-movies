@@ -7,11 +7,14 @@ class Settings(BaseSettings):
         "mongodb://localhost:27017",
         title="MongoDB connection string",
         description="MongoDB database connection string.",
-        env='MONGODB_CONNECTION_STRING',
+        env="MONGODB_CONNECTION_STRING",
     )
     mongo_database_name: str = Field(
         "movie_track_db",
         title="MongoDB Movies Database Name",
         description="MongoDB Movies Database Name",
-        env='MONGODB_DATABASE_NAME',
+        env="MONGODB_DATABASE_NAME",
     )
+
+    def __hash__(self) -> int:
+        return 1
