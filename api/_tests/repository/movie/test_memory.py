@@ -1,6 +1,7 @@
 import pytest
 
 from api.entities.movie import Movie
+
 # noinspection PyUnresolvedReferences
 from api._tests.fixtures import memory_movie_repo_fixture
 from api.repository.movie.abstractions import RepositoryException
@@ -44,7 +45,9 @@ async def test_create(memory_movie_repo_fixture):
     ],
 )
 @pytest.mark.asyncio
-async def test_get_by_id(memory_movie_repo_fixture, movies_seed, movie_id, expected_result):
+async def test_get_by_id(
+    memory_movie_repo_fixture, movies_seed, movie_id, expected_result
+):
     for movie in movies_seed:
         await memory_movie_repo_fixture.create(movie)
     # noinspection PyTypeChecker
@@ -124,7 +127,9 @@ async def test_get_by_id(memory_movie_repo_fixture, movies_seed, movie_id, expec
     ],
 )
 @pytest.mark.asyncio
-async def test_get_by_title(memory_movie_repo_fixture, movies_seed, movie_title, expected_result):
+async def test_get_by_title(
+    memory_movie_repo_fixture, movies_seed, movie_title, expected_result
+):
     for movie in movies_seed:
         await memory_movie_repo_fixture.create(movie)
     # noinspection PyTypeChecker
