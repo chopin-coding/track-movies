@@ -181,6 +181,11 @@ async def test_delete(mongo_movie_repo_fixture):
             watched=True,
         )
     )
-    await mongo_movie_repo_fixture.delete("test title3")
-    await mongo_movie_repo_fixture.delete(secrets.token_hex(10))
     assert await mongo_movie_repo_fixture.delete("test title3") is None
+
+@pytest.mark.asyncio
+async def test_delete_not_found(mongo_movie_repo_fixture):
+    with pytest.raises(RepositoryException):
+        assert await mongo_movie_repo_fixture.delete(secrets.token_hex(10))
+
+

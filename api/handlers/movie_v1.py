@@ -3,13 +3,19 @@ import uuid
 from functools import lru_cache
 
 from fastapi import APIRouter, Body, Depends, Query
+from fastapi.encoders import jsonable_encoder
+from starlette.responses import JSONResponse, Response
 
-from api.dto.movie import CreateMovieBody
+from api.DTO.movie import (
+    CreateMovieBody,
+    MovieCreatedResponse,
+    MovieResponse,
+    MovieUpdateBody,
+)
 from api.entities.movie import Movie
-from api.repository.movie.abstractions import MovieRepository
+from api.repository.movie.abstractions import MovieRepository, RepositoryException
 from api.repository.movie.mongo import MongoMovieRepository
-from api.responses.detail import DetailResponse
-from api.responses.movie import MovieCreatedResponse, MovieResponse
+from api.DTO.detail import DetailResponse
 from api.settings import Settings, settings_instance
 
 router = APIRouter(prefix="/api/v1/movie", tags=["movies"])
@@ -118,3 +124,49 @@ async def get_movie_by_title(
             )
         )
     return movies_returned
+
+
+@router.patch(
+    "/{movie_id}",
+    responses={200: {"model": DetailResponse}, 400: {"model": DetailResponse}},
+)
+async def update(
+    movie_id: str,
+    update_parameters: MovieUpdateBody = Body(
+        ..., title="Update body", description="The movie update parameters"
+    ),
+    repo: MovieRepository = Depends(movie_repository),
+):
+    """
+        Updates a movie.
+    """
+    try:
+        await repo.update(
+            movie_id=movie_id,
+            update_parameters=update_parameters.dict(
+                exclude_unset=True, exclude_none=True
+            ),
+        )
+        return DetailResponse(message=f"Movie {movie_id} updated.")
+
+    except RepositoryException as e:
+        return JSONResponse(
+            status_code=400, content=jsonable_encoder(DetailResponse(message=str(e)))
+        )
+
+
+@router.delete("/{movie_id}", responses={
+    200: {"model": DetailResponse},
+    204: {}})
+async def delete(movie_id: str, repo: MovieRepository = Depends(movie_repository)):
+    """
+        Deletes a movie.
+    """
+    try:
+        await repo.delete(movie_id)
+        return DetailResponse(message=f"Movie {movie_id} deleted.")
+    except RepositoryException as e:
+        return Response(status_code=204)
+
+
+

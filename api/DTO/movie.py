@@ -1,3 +1,5 @@
+import typing
+
 from pydantic import BaseModel, validator
 
 
@@ -33,3 +35,27 @@ class CreateMovieBody(BaseModel):
         if v < 1894:
             raise ValueError("The movie release year has to be after 1893")
         return v
+
+
+class MovieCreatedResponse(BaseModel):
+    id: str
+
+
+class MovieResponse(MovieCreatedResponse):
+    title: str
+    description: str
+    release_year: int
+    watched: bool = False
+
+
+class MovieUpdateBody(BaseModel):
+    # TODO: Implement the validations of the CreateMovieBody class to this class as well, and any other validations that may be necessary.
+
+    title: typing.Optional[str] = None
+    description: typing.Optional[str] = None
+    release_year: typing.Optional[int] = None
+    watched: typing.Optional[bool] = None
+
+
+class MovieDeleteResponse(BaseModel):
+    movie_id: str

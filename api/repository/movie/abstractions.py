@@ -12,7 +12,7 @@ from api.entities.movie import Movie
 
 
 class RepositoryException(Exception):
-    ...
+    pass
 
 
 class MovieRepository(abc.ABC):

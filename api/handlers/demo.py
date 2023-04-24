@@ -3,7 +3,7 @@ from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from starlette.responses import JSONResponse
 
-from api.responses.detail import DetailResponse
+from api.DTO.detail import DetailResponse
 
 router = APIRouter(prefix="/api/v1/demo")
 

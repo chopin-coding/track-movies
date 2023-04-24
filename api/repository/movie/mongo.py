@@ -83,8 +83,14 @@ class MongoMovieRepository(MovieRepository):
         result = await self._movies.update_one(
             {"id": movie_id}, {"$set": update_parameters}
         )
-        if result.modified_count == 0:
-            raise RepositoryException(f'movie with ID "{movie_id}" not found')
+        if result.matched_count == 0:
+            raise RepositoryException(f'movie with ID "{movie_id}" not found.')
+        elif result.modified_count == 0:
+            raise RepositoryException(
+                f'Movie "{movie_id}" was left unchanged because the update parameters matched the existing record.'
+            )
 
     async def delete(self, movie_id: str):
-        await self._movies.delete_one({"id": movie_id})
+        result = await self._movies.delete_one({"id": movie_id})
+        if result.deleted_count == 0:
+            raise RepositoryException(f'movie with ID "{movie_id}" not found.')
