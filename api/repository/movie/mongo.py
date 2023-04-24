@@ -3,7 +3,8 @@ import typing
 import motor.motor_asyncio
 
 from api.entities.movie import Movie
-from api.repository.movie.abstractions import MovieRepository, RepositoryException
+from api.repository.movie.abstractions import (MovieRepository,
+                                               RepositoryException)
 
 
 class MongoMovieRepository(MovieRepository):
@@ -47,9 +48,11 @@ class MongoMovieRepository(MovieRepository):
             )
         return None
 
-    async def get_by_title(self, title: str) -> typing.List[Movie]:
+    async def get_by_title(
+        self, title: str, skip: int = 0, limit: int = 1000
+    ) -> typing.List[Movie]:
         return_value: typing.List[Movie] = []
-        document_cursor = self._movies.find({"title": title})
+        document_cursor = self._movies.find({"title": title}).skip(skip).limit(limit)
         async for document in document_cursor:
             return_value.append(
                 Movie(
@@ -62,9 +65,9 @@ class MongoMovieRepository(MovieRepository):
             )
         return return_value
 
-    async def get_all(self) -> typing.List[Movie]:
+    async def get_all(self, skip: int = 0, limit: int = 1000) -> typing.List[Movie]:
         return_value: typing.List[Movie] = []
-        documents = self._movies.find()
+        documents = self._movies.find().skip(skip).limit(limit)
         async for document in documents:
             return_value.append(
                 Movie(

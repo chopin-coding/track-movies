@@ -1,7 +1,8 @@
 import typing
 
 from api.entities.movie import Movie
-from api.repository.movie.abstractions import MovieRepository, RepositoryException
+from api.repository.movie.abstractions import (MovieRepository,
+                                               RepositoryException)
 
 
 class MemoryMovieRepository(MovieRepository):
@@ -18,12 +19,23 @@ class MemoryMovieRepository(MovieRepository):
     async def get_by_id(self, movie_id: str) -> typing.Optional[Movie]:
         return self._storage.get(movie_id)
 
-    async def get_by_title(self, title: str) -> typing.List[Movie]:
+    async def get_by_title(
+        self, title: str, skip: int = 0, limit: int = 1000
+    ) -> typing.List[Movie]:
         matched = []
         for _, value in self._storage.items():
             if title == value.title:
                 matched.append(value)
-        return matched
+        if limit == 0:
+            return matched[skip:]
+        return matched[skip : skip + limit]
+
+    async def get_all(self, skip: int = 0, limit: int = 1000) -> typing.List[Movie]:
+        if limit == 0:
+            all_movies = list(self._storage.values())[skip:]
+            return all_movies
+        all_movies = list(self._storage.values())[skip : skip + limit]
+        return all_movies
 
     async def update(self, movie_id: str, update_parameters: dict):
         movie = self._storage.get(movie_id)

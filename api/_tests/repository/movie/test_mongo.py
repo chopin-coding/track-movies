@@ -124,6 +124,321 @@ async def test_get_by_title(
     assert movie == expected_result
 
 
+# noinspection DuplicatedCode
+@pytest.mark.parametrize(
+    "movies_seed, movie_title, skip, limit, expected_result",
+    [
+        pytest.param(
+            [
+                Movie(
+                    movie_id="someid1",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+                Movie(
+                    movie_id="someid2",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+                Movie(
+                    movie_id="someid3",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+            ],
+            "test_title",
+            0,
+            0,
+            [
+                Movie(
+                    movie_id="someid1",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+                Movie(
+                    movie_id="someid2",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+                Movie(
+                    movie_id="someid3",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+            ],
+            id="Skip 0, Limit 0",
+        ),
+        pytest.param(
+            [
+                Movie(
+                    movie_id="someid1",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+                Movie(
+                    movie_id="someid2",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+                Movie(
+                    movie_id="someid3",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+            ],
+            "test_title",
+            0,
+            1,
+            [
+                Movie(
+                    movie_id="someid1",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                )
+            ],
+            id="Skip 0, Limit 1",
+        ),
+        pytest.param(
+            [
+                Movie(
+                    movie_id="someid1",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+                Movie(
+                    movie_id="someid2",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+                Movie(
+                    movie_id="someid3",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+            ],
+            "test_title",
+            1,
+            1,
+            [
+                Movie(
+                    movie_id="someid2",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                )
+            ],
+            id="Skip 1, Limit 1",
+        ),
+    ],
+)
+@pytest.mark.asyncio
+async def test_get_by_title_pagination(
+    mongo_movie_repo_fixture, movies_seed, movie_title, skip, limit, expected_result
+):
+    for movie in movies_seed:
+        await mongo_movie_repo_fixture.create(movie)
+    movie = await mongo_movie_repo_fixture.get_by_title(
+        title=movie_title, skip=skip, limit=limit
+    )
+    assert movie == expected_result
+
+
+@pytest.mark.parametrize(
+    "movies_seed, skip, limit, expected_result",
+    [
+        pytest.param(
+            [
+                Movie(
+                    movie_id="someid1",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+                Movie(
+                    movie_id="someid2",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+                Movie(
+                    movie_id="someid3",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+            ],
+            0,
+            0,
+            [
+                Movie(
+                    movie_id="someid1",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+                Movie(
+                    movie_id="someid2",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+                Movie(
+                    movie_id="someid3",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+            ],
+            id="Skip 0, Limit 0",
+        ),
+        pytest.param(
+            [
+                Movie(
+                    movie_id="someid1",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+                Movie(
+                    movie_id="someid2",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+                Movie(
+                    movie_id="someid3",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+            ],
+            0,
+            1,
+            [
+                Movie(
+                    movie_id="someid1",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                )
+            ],
+            id="Skip 0, Limit 1",
+        ),
+        pytest.param(
+            [
+                Movie(
+                    movie_id="someid1",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+                Movie(
+                    movie_id="someid2",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+                Movie(
+                    movie_id="someid3",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+            ],
+            1,
+            1,
+            [
+                Movie(
+                    movie_id="someid2",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                )
+            ],
+            id="Skip 1, Limit 1",
+        ),
+        pytest.param(
+            [
+                Movie(
+                    movie_id="someid1",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+                Movie(
+                    movie_id="someid2",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+                Movie(
+                    movie_id="someid3",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+                Movie(
+                    movie_id="someid4",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+            ],
+            0,
+            1000,
+            [
+                Movie(
+                    movie_id="someid1",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+                Movie(
+                    movie_id="someid2",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+                Movie(
+                    movie_id="someid3",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+                Movie(
+                    movie_id="someid4",
+                    title="test_title",
+                    description="test description",
+                    release_year=1999,
+                ),
+            ],
+            id="Skip 0, Limit 1000",
+        ),
+    ],
+)
+@pytest.mark.asyncio
+async def test_get_all(
+    mongo_movie_repo_fixture, movies_seed, skip, limit, expected_result
+):
+    for movie in movies_seed:
+        await mongo_movie_repo_fixture.create(movie)
+    movies = await mongo_movie_repo_fixture.get_all(skip=skip, limit=limit)
+    assert movies == expected_result
+
+
 @pytest.mark.asyncio
 async def test_update(mongo_movie_repo_fixture):
     await mongo_movie_repo_fixture.create(
@@ -183,9 +498,8 @@ async def test_delete(mongo_movie_repo_fixture):
     )
     assert await mongo_movie_repo_fixture.delete("test title3") is None
 
+
 @pytest.mark.asyncio
 async def test_delete_not_found(mongo_movie_repo_fixture):
     with pytest.raises(RepositoryException):
         assert await mongo_movie_repo_fixture.delete(secrets.token_hex(10))
-
-

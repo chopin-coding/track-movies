@@ -1,21 +1,19 @@
 import typing
 import uuid
+from collections import namedtuple
 from functools import lru_cache
 
 from fastapi import APIRouter, Body, Depends, Query
 from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse, Response
 
-from api.DTO.movie import (
-    CreateMovieBody,
-    MovieCreatedResponse,
-    MovieResponse,
-    MovieUpdateBody,
-)
-from api.entities.movie import Movie
-from api.repository.movie.abstractions import MovieRepository, RepositoryException
-from api.repository.movie.mongo import MongoMovieRepository
 from api.DTO.detail import DetailResponse
+from api.DTO.movie import (CreateMovieBody, MovieCreatedResponse,
+                           MovieResponse, MovieUpdateBody)
+from api.entities.movie import Movie
+from api.repository.movie.abstractions import (MovieRepository,
+                                               RepositoryException)
+from api.repository.movie.mongo import MongoMovieRepository
 from api.settings import Settings, settings_instance
 
 router = APIRouter(prefix="/api/v1/movie", tags=["movies"])
@@ -38,6 +36,18 @@ def movie_repository(settings: Settings = Depends(settings_instance)):
         return _make_movie_repository(settings)
 
     return cache()
+
+
+def pagination_params(
+    skip: int = Query(
+        0, title="Skip", description="The number of results to be skipped.", ge=0
+    ),
+    limit: int = Query(
+        1000, title="Limit", description="The maximum number of results to be returned."
+    ),
+):
+    Pagination = namedtuple("Pagination", ["skip", "limit"])
+    return Pagination(skip=skip, limit=limit)
 
 
 @router.post("/", status_code=201, response_model=MovieCreatedResponse)
@@ -66,8 +76,9 @@ async def post_create_movie(
 @router.get("/all", response_model=typing.List[MovieResponse])
 async def get_all(
     repo: MovieRepository = Depends(movie_repository),
+    pagination=Depends(pagination_params),
 ):
-    movies = await repo.get_all()
+    movies = await repo.get_all(skip=pagination.skip, limit=pagination.limit)
     movies_returned = []
     for movie in movies:
         movies_returned.append(
@@ -79,6 +90,7 @@ async def get_all(
                 watched=movie.watched,
             )
         )
+    # FIXME: Gotta find a way to avoid iterating through the results to create MovieResponse objects individually while keeping Pydantic happy.
     return movies_returned
 
 
@@ -110,8 +122,11 @@ async def get_movie_by_title(
         ..., title="Title", description="The title of the movie.", min_length=2
     ),
     repo: MovieRepository = Depends(movie_repository),
+    pagination=Depends(pagination_params),
 ):
-    movies = await repo.get_by_title(title)
+    movies = await repo.get_by_title(
+        title=title, skip=pagination.skip, limit=pagination.limit
+    )
     movies_returned = []
     for movie in movies:
         movies_returned.append(
@@ -138,7 +153,7 @@ async def update(
     repo: MovieRepository = Depends(movie_repository),
 ):
     """
-        Updates a movie.
+    Updates a movie.
     """
     try:
         await repo.update(
@@ -155,18 +170,13 @@ async def update(
         )
 
 
-@router.delete("/{movie_id}", responses={
-    200: {"model": DetailResponse},
-    204: {}})
+@router.delete("/{movie_id}", responses={200: {"model": DetailResponse}, 204: {}})
 async def delete(movie_id: str, repo: MovieRepository = Depends(movie_repository)):
     """
-        Deletes a movie.
+    Deletes a movie.
     """
     try:
         await repo.delete(movie_id)
         return DetailResponse(message=f"Movie {movie_id} deleted.")
     except RepositoryException as e:
         return Response(status_code=204)
-
-
-

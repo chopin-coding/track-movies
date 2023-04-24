@@ -3,7 +3,6 @@ import typing
 
 from api.entities.movie import Movie
 
-
 # CRUD
 # C - Create
 # R - Read
@@ -30,13 +29,15 @@ class MovieRepository(abc.ABC):
         """
         raise NotImplementedError
 
-    async def get_by_title(self, title: str) -> typing.List[Movie]:
+    async def get_by_title(
+        self, title: str, skip: int = 0, limit: int = 1000
+    ) -> typing.List[Movie]:
         """
         Returns a list of movies that share the same title.
         """
         raise NotImplementedError
 
-    async def get_all(self) -> typing.List[Movie]:
+    async def get_all(self, skip: int = 0, limit: int = 1000) -> typing.List[Movie]:
         """
         Returns the list of all the movies in the DB.
         """
