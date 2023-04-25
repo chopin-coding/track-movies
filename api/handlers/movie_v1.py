@@ -8,11 +8,14 @@ from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse, Response
 
 from api.DTO.detail import DetailResponse
-from api.DTO.movie import (CreateMovieBody, MovieCreatedResponse,
-                           MovieResponse, MovieUpdateBody)
+from api.DTO.movie import (
+    CreateMovieBody,
+    MovieCreatedResponse,
+    MovieResponse,
+    MovieUpdateBody,
+)
 from api.entities.movie import Movie
-from api.repository.movie.abstractions import (MovieRepository,
-                                               RepositoryException)
+from api.repository.movie.abstractions import MovieRepository, RepositoryException
 from api.repository.movie.mongo import MongoMovieRepository
 from api.settings import Settings, settings_instance
 
@@ -78,6 +81,10 @@ async def get_all(
     repo: MovieRepository = Depends(movie_repository),
     pagination=Depends(pagination_params),
 ):
+    """
+    Returns all the movies in the database.
+    Accepts the query strings "skip" and "limit" for pagination.
+    """
     movies = await repo.get_all(skip=pagination.skip, limit=pagination.limit)
     movies_returned = []
     for movie in movies:
@@ -106,7 +113,12 @@ async def get_movie_by_id(
     """
     movie = await repo.get_by_id(movie_id=movie_id)
     if movie is None:
-        return DetailResponse(message=f"Movie with ID {movie_id} not found.")
+        return JSONResponse(
+            status_code=404,
+            content=jsonable_encoder(
+                DetailResponse(message=f"Movie with ID {movie_id} not found.")
+            ),
+        )
     return MovieResponse(
         id=movie.id,
         title=movie.title,
@@ -124,6 +136,10 @@ async def get_movie_by_title(
     repo: MovieRepository = Depends(movie_repository),
     pagination=Depends(pagination_params),
 ):
+    """
+    Returns movie by title.
+    Accepts the query strings "skip" and "limit" for pagination.
+    """
     movies = await repo.get_by_title(
         title=title, skip=pagination.skip, limit=pagination.limit
     )
@@ -137,6 +153,13 @@ async def get_movie_by_title(
                 release_year=movie.release_year,
                 watched=movie.watched,
             )
+        )
+    if movies_returned == []:
+        return JSONResponse(
+            status_code=404,
+            content=jsonable_encoder(
+                DetailResponse(message=f'No movies titled "{title}" were found.')
+            ),
         )
     return movies_returned
 
@@ -170,13 +193,10 @@ async def update(
         )
 
 
-@router.delete("/{movie_id}", responses={200: {"model": DetailResponse}, 204: {}})
+@router.delete("/{movie_id}", status_code=204)
 async def delete(movie_id: str, repo: MovieRepository = Depends(movie_repository)):
     """
     Deletes a movie.
     """
-    try:
-        await repo.delete(movie_id)
-        return DetailResponse(message=f"Movie {movie_id} deleted.")
-    except RepositoryException as e:
-        return Response(status_code=204)
+    await repo.delete(movie_id=movie_id)
+    return Response(status_code=204)

@@ -1,8 +1,7 @@
 import typing
 
 from api.entities.movie import Movie
-from api.repository.movie.abstractions import (MovieRepository,
-                                               RepositoryException)
+from api.repository.movie.abstractions import MovieRepository, RepositoryException
 
 
 class MemoryMovieRepository(MovieRepository):

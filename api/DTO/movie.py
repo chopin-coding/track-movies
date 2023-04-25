@@ -10,7 +10,6 @@ class CreateMovieBody(BaseModel):
     CreateMovieBody is used as the body for the create movie endpoint.
     """
 
-    movie_id: str
     title: str
     description: str
     release_year: int

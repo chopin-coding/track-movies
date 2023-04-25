@@ -497,6 +497,8 @@ async def test_delete(mongo_movie_repo_fixture):
         )
     )
     assert await mongo_movie_repo_fixture.delete("test title3") is None
+    read_result = await mongo_movie_repo_fixture.get_by_id(movie_id="test title3")
+    assert read_result is None
 
 
 @pytest.mark.asyncio
