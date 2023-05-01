@@ -3,8 +3,9 @@ import uuid
 from collections import namedtuple
 from functools import lru_cache
 
-from fastapi import APIRouter, Body, Depends, Query
+from fastapi import APIRouter, Body, Depends, HTTPException, Query
 from fastapi.encoders import jsonable_encoder
+from fastapi.security import HTTPBasic, HTTPBasicCredentials, HTTPBearer
 from starlette.responses import JSONResponse, Response
 
 from api.DTO.detail import DetailResponse
@@ -19,7 +20,21 @@ from api.repository.movie.abstractions import MovieRepository, RepositoryExcepti
 from api.repository.movie.mongo import MongoMovieRepository
 from api.settings import Settings, settings_instance
 
-router = APIRouter(prefix="/api/v1/movie", tags=["movies"])
+http_basic = HTTPBasic()
+
+
+# Basic authentication example
+'''
+def basic_authentication(credentials: HTTPBasicCredentials = Depends(http_basic)):
+    if credentials.username == "" and credentials.password == "":
+        return
+    raise HTTPException(status_code=401, detail="invalid_credentials")
+'''
+
+router = APIRouter(
+    prefix="/api/v1/movie",
+    tags=["movies"],
+)
 
 
 def _make_movie_repository(settings: Settings) -> MovieRepository:

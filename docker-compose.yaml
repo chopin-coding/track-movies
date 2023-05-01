@@ -3,16 +3,18 @@
 version: '3.1'
 
 services:
-  mongo:
+  api:
+    build:
+      dockerfile: ./Dockerfile
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - "MONGODB_CONNECTION_STRING=mongodb://mongo-service-name:27017"
+  mongo-service-name:
     image: mongo:5.0.14
     restart: always
     ports:
       - "27017:27017"
-
-    networks:
-      - my-network
-
-networks:
-  my-network:
 
 

@@ -2,11 +2,10 @@ import functools
 
 import pytest
 
-from api.entities.movie import Movie
-from api.handlers.movie_v1 import movie_repository
-
 # noinspection PyUnresolvedReferences
 from api._tests.fixtures import test_client
+from api.entities.movie import Movie
+from api.handlers.movie_v1 import movie_repository
 from api.repository.movie.memory import MemoryMovieRepository
 
 
@@ -591,25 +590,42 @@ async def test_patch_update(
 
 
 @pytest.mark.asyncio()
-@pytest.mark.parametrize("movies_seed, movie_id, expected_status_code, expected_result", [
-    pytest.param([
+@pytest.mark.parametrize(
+    "movies_seed, movie_id, expected_status_code, expected_result",
+    [
+        pytest.param(
+            [
                 Movie(
                     movie_id="valid_ID1",
                     title="test movie",
                     description="test description",
                     release_year=1999,
                 )
-    ], 'valid_ID1', 204, '', id="valid movie successfully deleted"),
-    pytest.param([
+            ],
+            "valid_ID1",
+            204,
+            "",
+            id="valid movie successfully deleted",
+        ),
+        pytest.param(
+            [
                 Movie(
                     movie_id="valid_ID1",
                     title="test movie",
                     description="test description",
                     release_year=1999,
                 )
-    ], 'valid_ID2', 204, '', id="valid movie successfully deleted"),
-])
-async def test_delete(test_client, movies_seed, movie_id, expected_status_code, expected_result):
+            ],
+            "valid_ID2",
+            204,
+            "",
+            id="valid movie successfully deleted",
+        ),
+    ],
+)
+async def test_delete(
+    test_client, movies_seed, movie_id, expected_status_code, expected_result
+):
     # Setup
     repo = MemoryMovieRepository()
     patched_dependency = functools.partial(memory_movie_repository_dependency, repo)
@@ -626,6 +642,3 @@ async def test_delete(test_client, movies_seed, movie_id, expected_status_code, 
     # Assert
     assert delete_result.status_code == expected_status_code
     assert read_result.json() == {"message": f"Movie with ID {movie_id} not found."}
-
-
-
