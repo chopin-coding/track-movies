@@ -23,8 +23,8 @@ def create_app():
     # app.add_middleware(CustomHeaderMiddleware, test_option=True)
 
     # Routers
-    # app.include_router(demo.router)
-    app.include_router(responses_section.router)
+    # app.include_router(demo.router) # practice
+    # app.include_router(responses_section.router) # practice
     app.include_router(movie_v1.router)
 
     return app
