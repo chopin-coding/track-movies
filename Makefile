@@ -1,3 +1,6 @@
+generate-docs:
+	pdoc3 --html --force api
+
 test:
 	pytest .
 

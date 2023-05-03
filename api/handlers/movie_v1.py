@@ -24,12 +24,12 @@ http_basic = HTTPBasic()
 
 
 # Basic authentication example
-'''
+"""
 def basic_authentication(credentials: HTTPBasicCredentials = Depends(http_basic)):
     if credentials.username == "" and credentials.password == "":
         return
     raise HTTPException(status_code=401, detail="invalid_credentials")
-'''
+"""
 
 router = APIRouter(
     prefix="/api/v1/movie",

@@ -13,7 +13,7 @@ from api.repository.movie.mongo import MongoMovieRepository
 @pytest.fixture()
 def test_client():
     client = TestClient(app=create_app())
-    client.headers = { 'Authorization': "Basic YWRtaW46YWRtaW4=" }
+    client.headers = {"Authorization": "Basic YWRtaW46YWRtaW4="}
 
     return client
 

@@ -8,6 +8,30 @@ class Movie:
         release_year: int,
         watched: bool = False
     ):
+        """
+            Parameters
+            ----------
+            movie_id: str
+                The movie UUID.
+            title: str
+                The title of the movie.
+            description: str
+                The description of the movie.
+            release_year: int
+                The release year of the movie.
+            watched: bool
+                Whether the movie is watched.
+
+            Return
+            ------
+            None
+                This function doesn't return anything.
+
+            Raises
+            ------
+            ValueError
+                Raised if movie_id is None.
+        """
         if movie_id is None:
             raise ValueError("Movie ID is required!")
         self._id = movie_id
