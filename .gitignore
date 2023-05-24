@@ -216,3 +216,7 @@ fabric.properties
 
 /mike_w.jpg
 .idea
+
+# Auto-generated Documentation
+# Pydoc
+/html
