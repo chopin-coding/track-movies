@@ -1,10 +1,9 @@
 from fastapi import APIRouter
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import UJSONResponse
-from starlette.background import BackgroundTask
 from starlette.responses import JSONResponse, Response, StreamingResponse
 
-from api.DTO.detail import DetailResponse
+from app.api.dto.detail import DetailResponse
 
 router = APIRouter(prefix="/api/v1/responses")
 

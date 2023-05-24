@@ -3,22 +3,22 @@ import uuid
 from collections import namedtuple
 from functools import lru_cache
 
-from fastapi import APIRouter, Body, Depends, HTTPException, Query
+from fastapi import APIRouter, Body, Depends, Query
 from fastapi.encoders import jsonable_encoder
-from fastapi.security import HTTPBasic, HTTPBasicCredentials, HTTPBearer
+from fastapi.security import HTTPBasic
 from starlette.responses import JSONResponse, Response
 
-from api.DTO.detail import DetailResponse
-from api.DTO.movie import (
+from app.api.dto.detail import DetailResponse
+from app.api.dto.movie import (
     CreateMovieBody,
     MovieCreatedResponse,
     MovieResponse,
     MovieUpdateBody,
 )
-from api.entities.movie import Movie
-from api.repository.movie.abstractions import MovieRepository, RepositoryException
-from api.repository.movie.mongo import MongoMovieRepository
-from api.settings import Settings, settings_instance
+from app.api.entities.movie import Movie
+from app.api.repository.movie.abstractions import MovieRepository, RepositoryException
+from app.api.repository.movie.mongo import MongoMovieRepository
+from app.api.settings import Settings, settings_instance
 
 http_basic = HTTPBasic()
 

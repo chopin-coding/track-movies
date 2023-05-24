@@ -2,9 +2,7 @@ from fastapi import FastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
 from starlette.middleware.cors import CORSMiddleware
 
-from api._tests.handlers import responses_section
-from api.handlers import demo, movie_v1
-from api.middleware import CustomHeaderMiddleware
+from app.api.handlers import movie_v1
 
 
 def create_app():

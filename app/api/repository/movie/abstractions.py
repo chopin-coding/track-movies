@@ -1,7 +1,7 @@
 import abc
 import typing
 
-from api.entities.movie import Movie
+from app.api.entities.movie import Movie
 
 # CRUD
 # C - Create

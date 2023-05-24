@@ -2,12 +2,11 @@ import asyncio
 import secrets
 
 import pytest
-import starlette.testclient
 from starlette.testclient import TestClient
 
-from api.api import create_app
-from api.repository.movie.memory import MemoryMovieRepository
-from api.repository.movie.mongo import MongoMovieRepository
+from app.api.api import create_app
+from app.api.repository.movie.memory import MemoryMovieRepository
+from app.api.repository.movie.mongo import MongoMovieRepository
 
 
 @pytest.fixture()

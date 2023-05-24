@@ -2,8 +2,6 @@ import typing
 
 from pydantic import BaseModel, validator
 
-from api.entities.movie import Movie
-
 
 class CreateMovieBody(BaseModel):
     """
