@@ -1,15 +1,15 @@
 import typing
 
-from fastapi import APIRouter, Body, Depends, Query
+from fastapi import APIRouter, Depends, Query
 from fastapi.encoders import jsonable_encoder
-from starlette.responses import JSONResponse, Response
+from starlette.responses import JSONResponse
 from fastapi_versioning import versioned_api_route
 
-from app.api.dto.detail import DetailResponse
-from app.api.dto.movie import (
+from app.dto.detail import DetailResponse
+from app.dto.movie import (
     MovieResponse,
 )
-from app.api.repository.movie.abstractions import MovieRepository, RepositoryException
+from app.repository.movie.abstractions import MovieRepository
 from app.handlers.handler_dependencies import movie_repository, pagination_params
 
 router = APIRouter(

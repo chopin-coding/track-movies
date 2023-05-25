@@ -4,9 +4,9 @@ import secrets
 import pytest
 from starlette.testclient import TestClient
 
-from app.api.api import create_app
-from app.api.repository.movie.memory import MemoryMovieRepository
-from app.api.repository.movie.mongo import MongoMovieRepository
+from app.api import create_app
+from app.repository.movie.memory import MemoryMovieRepository
+from app.repository.movie.mongo import MongoMovieRepository
 
 
 @pytest.fixture()

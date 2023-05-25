@@ -221,4 +221,4 @@ fabric.properties
 # Pydoc
 /html
 app/handlers/demo.py
-tests/handlers/responses_section.py
+app/tests/handlers/responses_section.py

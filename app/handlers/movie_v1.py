@@ -6,15 +6,15 @@ from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse, Response
 from fastapi_versioning import versioned_api_route
 
-from app.api.dto.detail import DetailResponse
-from app.api.dto.movie import (
+from app.dto.detail import DetailResponse
+from app.dto.movie import (
     CreateMovieBody,
     MovieCreatedResponse,
     MovieResponse,
     MovieUpdateBody,
 )
-from app.api.entities.movie import Movie
-from app.api.repository.movie.abstractions import MovieRepository, RepositoryException
+from app.entities.movie import Movie
+from app.repository.movie.abstractions import MovieRepository, RepositoryException
 from app.handlers.handler_dependencies import movie_repository, pagination_params
 
 router = APIRouter(

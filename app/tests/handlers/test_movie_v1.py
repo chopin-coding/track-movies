@@ -3,10 +3,10 @@ import functools
 import pytest
 
 # noinspection PyUnresolvedReferences
-from tests.fixtures import test_client
-from app.api.entities.movie import Movie
+from app.tests.fixtures import test_client
+from app.entities.movie import Movie
 from app.handlers.handler_dependencies import movie_repository
-from app.api.repository.movie.memory import MemoryMovieRepository
+from app.repository.movie.memory import MemoryMovieRepository
 
 
 def memory_movie_repository_dependency(dependency):
