@@ -3,9 +3,9 @@ import functools
 import pytest
 
 # noinspection PyUnresolvedReferences
-from _tests.fixtures import test_client
+from tests.fixtures import test_client
 from app.api.entities.movie import Movie
-from app.api.handlers.movie_v1 import movie_repository
+from app.handlers.handler_dependencies import movie_repository
 from app.api.repository.movie.memory import MemoryMovieRepository
 
 

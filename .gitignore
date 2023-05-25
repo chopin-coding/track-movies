@@ -220,4 +220,5 @@ fabric.properties
 # Auto-generated Documentation
 # Pydoc
 /html
-app/api/handlers/demo.py
+app/handlers/demo.py
+tests/handlers/responses_section.py

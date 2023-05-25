@@ -3,7 +3,7 @@ import secrets
 import pytest
 
 # noinspection PyUnresolvedReferences
-from _tests.fixtures import mongo_movie_repo_fixture
+from tests.fixtures import mongo_movie_repo_fixture
 from app.api.entities.movie import Movie
 from app.api.repository.movie.abstractions import RepositoryException
 

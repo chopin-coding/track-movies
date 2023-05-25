@@ -4,9 +4,7 @@ from pydantic import BaseModel, validator
 
 
 class CreateMovieBody(BaseModel):
-    """
-    CreateMovieBody is used as the body for the create movie endpoint.
-    """
+    """CreateMovieBody is used as the body for the create movie endpoint."""
 
     title: str
     description: str
@@ -48,7 +46,8 @@ class MovieResponse(MovieCreatedResponse):
 
 
 class MovieUpdateBody(BaseModel):
-    # TODO: Implement the validations of the CreateMovieBody class to this class as well, and any other validations that may be necessary.
+    # TODO: Implement the validations of the CreateMovieBody class to this class as well, and any other
+    #  validations that may be necessary.
 
     title: typing.Optional[str] = None
     description: typing.Optional[str] = None

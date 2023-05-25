@@ -1,12 +1,16 @@
 from fastapi import FastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
 from starlette.middleware.cors import CORSMiddleware
+from fastapi_versioning import VersionedFastAPI, version
 
-from app.api.handlers import movie_v1
+from app.handlers import movie_v1
 
 
 def create_app():
-    app = FastAPI(docs_url="/")
+    app = FastAPI(
+        title="Movie Tracker",
+        docs_url="/"
+    )
 
     # Middleware
     app.add_middleware(
@@ -18,11 +22,13 @@ def create_app():
     )
 
     Instrumentator().instrument(app).expose(app)
-    # app.add_middleware(CustomHeaderMiddleware, test_option=True)
 
-    # Routers
-    # app.include_router(demo.router) # practice
-    # app.include_router(responses_section.router) # practice
     app.include_router(movie_v1.router)
+
+    app = VersionedFastAPI(
+        app,
+        version_format='{major}',
+        prefix_format='api/v{major}'
+    )
 
     return app

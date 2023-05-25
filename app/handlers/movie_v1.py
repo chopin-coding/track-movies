@@ -1,12 +1,10 @@
 import typing
 import uuid
-from collections import namedtuple
-from functools import lru_cache
 
 from fastapi import APIRouter, Body, Depends, Query
 from fastapi.encoders import jsonable_encoder
-from fastapi.security import HTTPBasic
 from starlette.responses import JSONResponse, Response
+from fastapi_versioning import versioned_api_route
 
 from app.api.dto.detail import DetailResponse
 from app.api.dto.movie import (
@@ -17,65 +15,20 @@ from app.api.dto.movie import (
 )
 from app.api.entities.movie import Movie
 from app.api.repository.movie.abstractions import MovieRepository, RepositoryException
-from app.api.repository.movie.mongo import MongoMovieRepository
-from app.api.settings import Settings, settings_instance
-
-http_basic = HTTPBasic()
-
-
-# Basic authentication example
-"""
-def basic_authentication(credentials: HTTPBasicCredentials = Depends(http_basic)):
-    if credentials.username == "" and credentials.password == "":
-        return
-    raise HTTPException(status_code=401, detail="invalid_credentials")
-"""
+from app.handlers.handler_dependencies import movie_repository, pagination_params
 
 router = APIRouter(
-    prefix="/api/v1/movie",
+    prefix="/movie",
     tags=["movies"],
+    route_class=versioned_api_route(1)
 )
-
-
-def _make_movie_repository(settings: Settings) -> MovieRepository:
-    return MongoMovieRepository(
-        connection_string=settings.mongo_connection_string,
-        database=settings.mongo_database_name,
-    )
-
-
-def movie_repository(settings: Settings = Depends(settings_instance)):
-    """
-    Movie repository instance to be used as a FastAPI dependency.
-    """
-
-    @lru_cache()
-    def cache():
-        return _make_movie_repository(settings)
-
-    return cache()
-
-
-def pagination_params(
-    skip: int = Query(
-        0, title="Skip", description="The number of results to be skipped.", ge=0
-    ),
-    limit: int = Query(
-        1000, title="Limit", description="The maximum number of results to be returned."
-    ),
-):
-    Pagination = namedtuple("Pagination", ["skip", "limit"])
-    return Pagination(skip=skip, limit=limit)
-
 
 @router.post("/", status_code=201, response_model=MovieCreatedResponse)
 async def post_create_movie(
     movie: CreateMovieBody = Body(..., title="Movie", description="The movie details"),
     repo: MovieRepository = Depends(movie_repository),
 ):
-    """
-    Creates a movie.
-    """
+    """Creates a movie."""
 
     movie_id = str(uuid.uuid4())
 
@@ -96,10 +49,8 @@ async def get_all(
     repo: MovieRepository = Depends(movie_repository),
     pagination=Depends(pagination_params),
 ):
-    """
-    Returns all the movies in the database.
-    Accepts the query strings "skip" and "limit" for pagination.
-    """
+    """Returns all the movies in the database."""
+
     movies = await repo.get_all(skip=pagination.skip, limit=pagination.limit)
     movies_returned = []
     for movie in movies:
@@ -112,7 +63,8 @@ async def get_all(
                 watched=movie.watched,
             )
         )
-    # FIXME: Gotta find a way to avoid iterating through the results to create MovieResponse objects individually while keeping Pydantic happy.
+    # FIXME: Gotta find a way to avoid iterating through the results to create MovieResponse objects individually
+    #  while keeping Pydantic happy.
     return movies_returned
 
 
@@ -123,9 +75,8 @@ async def get_all(
 async def get_movie_by_id(
     movie_id: str, repo: MovieRepository = Depends(movie_repository)
 ):
-    """
-    Returns a movie if it exists, None if not.
-    """
+    """Returns a movie if it exists, None if not."""
+
     movie = await repo.get_by_id(movie_id=movie_id)
     if movie is None:
         return JSONResponse(
@@ -151,10 +102,8 @@ async def get_movie_by_title(
     repo: MovieRepository = Depends(movie_repository),
     pagination=Depends(pagination_params),
 ):
-    """
-    Returns movie by title.
-    Accepts the query strings "skip" and "limit" for pagination.
-    """
+    """Returns movie by title."""
+
     movies = await repo.get_by_title(
         title=title, skip=pagination.skip, limit=pagination.limit
     )
@@ -169,7 +118,7 @@ async def get_movie_by_title(
                 watched=movie.watched,
             )
         )
-    if movies_returned == []:
+    if not movies_returned:
         return JSONResponse(
             status_code=404,
             content=jsonable_encoder(
@@ -190,9 +139,8 @@ async def update(
     ),
     repo: MovieRepository = Depends(movie_repository),
 ):
-    """
-    Updates a movie.
-    """
+    """Updates a movie."""
+
     try:
         await repo.update(
             movie_id=movie_id,
@@ -210,8 +158,7 @@ async def update(
 
 @router.delete("/{movie_id}", status_code=204)
 async def delete(movie_id: str, repo: MovieRepository = Depends(movie_repository)):
-    """
-    Deletes a movie.
-    """
+    """Deletes a movie."""
+
     await repo.delete(movie_id=movie_id)
     return Response(status_code=204)
