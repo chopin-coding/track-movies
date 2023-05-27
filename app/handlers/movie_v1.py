@@ -157,5 +157,3 @@ async def delete(movie_id: str, repo: MovieRepository = Depends(movie_repository
 
     await repo.delete(movie_id=movie_id)
     return Response(status_code=204)
-
-

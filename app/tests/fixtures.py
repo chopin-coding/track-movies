@@ -11,7 +11,6 @@ from app.repository.movie.mongo import MongoMovieRepository
 # noinspection PyPackageRequirements
 
 
-
 @pytest.fixture()
 def mongo_movie_repo_fixture():
     random_database_name = secrets.token_hex(5)

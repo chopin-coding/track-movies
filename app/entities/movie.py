@@ -8,4 +8,3 @@ class Movie:
     description: str
     release_year: int
     watched: bool = False
-

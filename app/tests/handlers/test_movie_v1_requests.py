@@ -4,12 +4,12 @@ from app.entities.movie import Movie
 # noinspection PyUnresolvedReferences
 from app.tests.fixtures import test_client
 
-
 # FIXME: Pytest can't read env variables even
 #  after pytest-dotenv
 
 # FIXME: Adapt all of the test to only use test_client requests
 #  and no repos directly
+
 
 @pytest.mark.asyncio()
 async def test_create_movie(test_client):
@@ -564,7 +564,6 @@ async def test_patch_update(
     expected_status_code,
     expected_result,
 ):
-
     # Test
     for movie in movies_seed:
         await repo.create(movie)
