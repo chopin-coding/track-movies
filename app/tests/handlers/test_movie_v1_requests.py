@@ -1,30 +1,23 @@
-import functools
-
 import pytest
 
+from app.entities.movie import Movie
 # noinspection PyUnresolvedReferences
 from app.tests.fixtures import test_client
-from app.entities.movie import Movie
-from app.handlers.handler_dependencies import movie_repository
-from app.repository.movie.memory import MemoryMovieRepository
 
 
-def memory_movie_repository_dependency(dependency):
-    return dependency
+# FIXME: Pytest can't read env variables even
+#  after pytest-dotenv
 
+# FIXME: Adapt all of the test to only use test_client requests
+#  and no repos directly
 
 @pytest.mark.asyncio()
 async def test_create_movie(test_client):
-    # Setup
-    repo = MemoryMovieRepository()
-    patched_dependency = functools.partial(memory_movie_repository_dependency, repo)
-
-    test_client.app.dependency_overrides[movie_repository] = patched_dependency
     # Test
-    result = test_client.post(
+    create_result = test_client.post(
         "/api/v1/movie/",
         json={
-            "title": "My Movie1",
+            "title": "some",
             "description": "string",
             "release_year": 2004,
             "watched": False,
@@ -32,10 +25,12 @@ async def test_create_movie(test_client):
     )
 
     # Assert
-    movie_id = result.json().get("id")
-    assert result.status_code == 201
-    movie = await repo.get_by_id(movie_id=movie_id)
-    assert movie is not None
+    movie_id = create_result.json().get("id")
+    assert create_result.status_code == 201
+
+    get_result = test_client.get(f"/api/v1/movie/{movie_id}")
+    assert get_result.status_code == 200
+    assert get_result is not None
 
 
 @pytest.mark.asyncio()
@@ -68,7 +63,7 @@ async def test_create_movie(test_client):
 async def test_create_movie_validations(test_client, movie_json):
     # Setup
     repo = MemoryMovieRepository()
-    patched_dependency = functools.partial(memory_movie_repository_dependency, repo)
+    patched_dependency = partial(memory_movie_repository_dependency, repo)
 
     test_client.app.dependency_overrides[movie_repository] = patched_dependency
     # Test
@@ -92,13 +87,13 @@ async def test_create_movie_validations(test_client, movie_json):
         pytest.param(
             [
                 Movie(
-                    movie_id="valid-ID12",
+                    id="valid-ID12",
                     title="test movie",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="valid-ID13",
+                    id="valid-ID13",
                     title="test movie",
                     description="test description",
                     release_year=1999,
@@ -122,7 +117,7 @@ async def test_get_movie_by_id(
 ):
     # Setup
     repo = MemoryMovieRepository()
-    patched_dependency = functools.partial(memory_movie_repository_dependency, repo)
+    patched_dependency = partial(memory_movie_repository_dependency, repo)
 
     test_client.app.dependency_overrides[movie_repository] = patched_dependency
     # Test
@@ -143,13 +138,13 @@ async def test_get_movie_by_id(
         pytest.param(
             [
                 Movie(
-                    movie_id="valid-ID13",
+                    id="valid-ID13",
                     title="test movie",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="valid-ID14",
+                    id="valid-ID14",
                     title="test movie",
                     description="test description",
                     release_year=1999,
@@ -179,25 +174,25 @@ async def test_get_movie_by_id(
         pytest.param(
             [
                 Movie(
-                    movie_id="valid-ID13",
+                    id="valid-ID13",
                     title="test movie",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="valid-ID14",
+                    id="valid-ID14",
                     title="test movie",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="valid-ID15",
+                    id="valid-ID15",
                     title="test movie",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="valid-ID16",
+                    id="valid-ID16",
                     title="test movie",
                     description="test description",
                     release_year=1999,
@@ -220,25 +215,25 @@ async def test_get_movie_by_id(
         pytest.param(
             [
                 Movie(
-                    movie_id="valid-ID13",
+                    id="valid-ID13",
                     title="test movie",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="valid-ID14",
+                    id="valid-ID14",
                     title="test movie",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="valid-ID15",
+                    id="valid-ID15",
                     title="test movie",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="valid-ID16",
+                    id="valid-ID16",
                     title="test movie",
                     description="test description",
                     release_year=1999,
@@ -261,25 +256,25 @@ async def test_get_movie_by_id(
         pytest.param(
             [
                 Movie(
-                    movie_id="valid-ID13",
+                    id="valid-ID13",
                     title="test movie",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="valid-ID14",
+                    id="valid-ID14",
                     title="test movie",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="valid-ID15",
+                    id="valid-ID15",
                     title="test movie",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="valid-ID16",
+                    id="valid-ID16",
                     title="test movie",
                     description="test description",
                     release_year=1999,
@@ -309,25 +304,25 @@ async def test_get_movie_by_id(
         pytest.param(
             [
                 Movie(
-                    movie_id="valid-ID13",
+                    id="valid-ID13",
                     title="test movie",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="valid-ID14",
+                    id="valid-ID14",
                     title="test movie",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="valid-ID15",
+                    id="valid-ID15",
                     title="test movie",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="valid-ID16",
+                    id="valid-ID16",
                     title="test movie",
                     description="test description",
                     release_year=1999,
@@ -375,7 +370,7 @@ async def test_get_all(
 ):
     # Setup
     repo = MemoryMovieRepository()
-    patched_dependency = functools.partial(memory_movie_repository_dependency, repo)
+    patched_dependency = partial(memory_movie_repository_dependency, repo)
 
     test_client.app.dependency_overrides[movie_repository] = patched_dependency
     # Test
@@ -422,19 +417,19 @@ async def test_get_all(
         pytest.param(
             [
                 Movie(
-                    movie_id="valid-ID14",
+                    id="valid-ID14",
                     title="test movie",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="valid-ID15",
+                    id="valid-ID15",
                     title="test movie",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="valid-ID16",
+                    id="valid-ID16",
                     title="test movie1",
                     description="test description",
                     release_year=1999,
@@ -465,19 +460,19 @@ async def test_get_all(
         pytest.param(
             [
                 Movie(
-                    movie_id="valid-ID14",
+                    id="valid-ID14",
                     title="test movie",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="valid-ID15",
+                    id="valid-ID15",
                     title="test movie",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="valid-ID16",
+                    id="valid-ID16",
                     title="test movie",
                     description="test description",
                     release_year=1999,
@@ -513,7 +508,7 @@ async def test_get_movie_by_title(
 ):
     # Setup
     repo = MemoryMovieRepository()
-    patched_dependency = functools.partial(memory_movie_repository_dependency, repo)
+    patched_dependency = partial(memory_movie_repository_dependency, repo)
 
     test_client.app.dependency_overrides[movie_repository] = patched_dependency
 
@@ -536,7 +531,7 @@ async def test_get_movie_by_title(
         pytest.param(
             [
                 Movie(
-                    movie_id="valid_ID1",
+                    id="valid_ID1",
                     title="test movie",
                     description="test description",
                     release_year=1999,
@@ -569,11 +564,6 @@ async def test_patch_update(
     expected_status_code,
     expected_result,
 ):
-    # Setup
-    repo = MemoryMovieRepository()
-    patched_dependency = functools.partial(memory_movie_repository_dependency, repo)
-
-    test_client.app.dependency_overrides[movie_repository] = patched_dependency
 
     # Test
     for movie in movies_seed:
@@ -596,7 +586,7 @@ async def test_patch_update(
         pytest.param(
             [
                 Movie(
-                    movie_id="valid_ID1",
+                    id="valid_ID1",
                     title="test movie",
                     description="test description",
                     release_year=1999,
@@ -610,7 +600,7 @@ async def test_patch_update(
         pytest.param(
             [
                 Movie(
-                    movie_id="valid_ID1",
+                    id="valid_ID1",
                     title="test movie",
                     description="test description",
                     release_year=1999,
@@ -628,7 +618,7 @@ async def test_delete(
 ):
     # Setup
     repo = MemoryMovieRepository()
-    patched_dependency = functools.partial(memory_movie_repository_dependency, repo)
+    patched_dependency = partial(memory_movie_repository_dependency, repo)
 
     test_client.app.dependency_overrides[movie_repository] = patched_dependency
 

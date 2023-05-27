@@ -3,7 +3,8 @@ import typing
 import motor.motor_asyncio
 
 from app.entities.movie import Movie
-from app.repository.movie.abstractions import MovieRepository, RepositoryException
+from app.repository.movie.abstractions import (MovieRepository,
+                                               RepositoryException)
 
 
 class MongoMovieRepository(MovieRepository):
@@ -13,8 +14,8 @@ class MongoMovieRepository(MovieRepository):
 
     def __init__(
         self,
-        connection_string: str = "mongodb://localhost:27017",
-        database: str = "movie_track_db",
+        connection_string: str,
+        database: str,
     ):
         self._client = motor.motor_asyncio.AsyncIOMotorClient(connection_string)
         self._database = self._client[database]
@@ -39,7 +40,7 @@ class MongoMovieRepository(MovieRepository):
         document = await self._movies.find_one({"id": movie_id})
         if document:
             return Movie(
-                movie_id=document.get("id"),
+                id=document.get("id"),
                 title=document.get("title"),
                 description=document.get("description"),
                 release_year=document.get("release_year"),
@@ -55,7 +56,7 @@ class MongoMovieRepository(MovieRepository):
         async for document in document_cursor:
             return_value.append(
                 Movie(
-                    movie_id=document.get("id"),
+                    id=document.get("id"),
                     title=document.get("title"),
                     description=document.get("description"),
                     release_year=document.get("release_year"),
@@ -70,7 +71,7 @@ class MongoMovieRepository(MovieRepository):
         async for document in documents:
             return_value.append(
                 Movie(
-                    movie_id=document.get("id"),
+                    id=document.get("id"),
                     title=document.get("title"),
                     description=document.get("description"),
                     release_year=document.get("release_year"),

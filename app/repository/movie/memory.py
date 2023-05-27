@@ -1,12 +1,13 @@
 import typing
 
 from app.entities.movie import Movie
-from app.repository.movie.abstractions import MovieRepository, RepositoryException
+from app.repository.movie.abstractions import (MovieRepository,
+                                               RepositoryException)
 
 
 class MemoryMovieRepository(MovieRepository):
-    """
-    MemoryMovieRepository implements the repository pattern by using a simple in memory database.
+    """MemoryMovieRepository implements the repository pattern through
+    a simple in memory database.
     """
 
     def __init__(self):
@@ -46,7 +47,7 @@ class MemoryMovieRepository(MovieRepository):
             # Check that update_parameters are fields in the Movie entities
             if hasattr(movie, key):
                 # Update the Movie entities field
-                setattr(movie, f"_{key}", value)
+                setattr(movie, key, value)
 
     async def delete(self, movie_id: str):  # removed inferred return type bool
         self._storage.pop(movie_id, None)

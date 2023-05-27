@@ -8,13 +8,8 @@ from app.api import create_app
 from app.repository.movie.memory import MemoryMovieRepository
 from app.repository.movie.mongo import MongoMovieRepository
 
+# noinspection PyPackageRequirements
 
-@pytest.fixture()
-def test_client():
-    client = TestClient(app=create_app())
-    client.headers = {"Authorization": "Basic YWRtaW46YWRtaW4="}
-
-    return client
 
 
 @pytest.fixture()
@@ -35,3 +30,8 @@ def memory_movie_repo_fixture():
     repo = MemoryMovieRepository()
     yield repo
     del repo
+
+
+@pytest.fixture()
+def test_client():
+    return TestClient(app=create_app())

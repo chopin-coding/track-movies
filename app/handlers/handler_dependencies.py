@@ -3,9 +3,9 @@ from functools import lru_cache
 
 from fastapi import Depends, Query
 
+from app.config import Settings, settings_instance
 from app.repository.movie.abstractions import MovieRepository
 from app.repository.movie.mongo import MongoMovieRepository
-from app.settings import Settings, settings_instance
 
 
 def _make_movie_repository(settings: Settings) -> MovieRepository:

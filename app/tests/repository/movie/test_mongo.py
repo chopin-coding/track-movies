@@ -2,17 +2,17 @@ import secrets
 
 import pytest
 
-# noinspection PyUnresolvedReferences
-from app.tests.fixtures import mongo_movie_repo_fixture
 from app.entities.movie import Movie
 from app.repository.movie.abstractions import RepositoryException
+# noinspection PyUnresolvedReferences
+from app.tests.fixtures import mongo_movie_repo_fixture
 
 
 @pytest.mark.asyncio
 async def test_create(mongo_movie_repo_fixture):
     await mongo_movie_repo_fixture.create(
         movie=Movie(
-            movie_id="test first",
+            id="test first",
             title="some title",
             description="some desc",
             release_year=1995,
@@ -21,7 +21,7 @@ async def test_create(mongo_movie_repo_fixture):
     )
     movie: Movie = await mongo_movie_repo_fixture.get_by_id("test first")
     assert movie == Movie(
-        movie_id="test first",
+        id="test first",
         title="some title",
         description="some desc",
         release_year=1995,
@@ -36,14 +36,14 @@ async def test_create(mongo_movie_repo_fixture):
         pytest.param(
             [
                 Movie(
-                    movie_id="test first",
+                    id="test first",
                     title="some title",
                     description="some desc",
                     release_year=1995,
                     watched=False,
                 ),
                 Movie(
-                    movie_id="second",
+                    id="second",
                     title="second title",
                     description="second desc",
                     release_year=1992,
@@ -52,7 +52,7 @@ async def test_create(mongo_movie_repo_fixture):
             ],
             "second",
             Movie(
-                movie_id="second",
+                id="second",
                 title="second title",
                 description="second desc",
                 release_year=1992,
@@ -79,14 +79,14 @@ async def test_get_by_id(
         pytest.param(
             [
                 Movie(
-                    movie_id="test title2",
+                    id="test title2",
                     title="same title",
                     description="second desc",
                     release_year=1992,
                     watched=True,
                 ),
                 Movie(
-                    movie_id="test title3",
+                    id="test title3",
                     title="same title",
                     description="second desc",
                     release_year=1992,
@@ -96,14 +96,14 @@ async def test_get_by_id(
             "same title",
             [
                 Movie(
-                    movie_id="test title2",
+                    id="test title2",
                     title="same title",
                     description="second desc",
                     release_year=1992,
                     watched=True,
                 ),
                 Movie(
-                    movie_id="test title3",
+                    id="test title3",
                     title="same title",
                     description="second desc",
                     release_year=1992,
@@ -131,19 +131,19 @@ async def test_get_by_title(
         pytest.param(
             [
                 Movie(
-                    movie_id="someid1",
+                    id="someid1",
                     title="test_title",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="someid2",
+                    id="someid2",
                     title="test_title",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="someid3",
+                    id="someid3",
                     title="test_title",
                     description="test description",
                     release_year=1999,
@@ -154,19 +154,19 @@ async def test_get_by_title(
             0,
             [
                 Movie(
-                    movie_id="someid1",
+                    id="someid1",
                     title="test_title",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="someid2",
+                    id="someid2",
                     title="test_title",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="someid3",
+                    id="someid3",
                     title="test_title",
                     description="test description",
                     release_year=1999,
@@ -177,19 +177,19 @@ async def test_get_by_title(
         pytest.param(
             [
                 Movie(
-                    movie_id="someid1",
+                    id="someid1",
                     title="test_title",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="someid2",
+                    id="someid2",
                     title="test_title",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="someid3",
+                    id="someid3",
                     title="test_title",
                     description="test description",
                     release_year=1999,
@@ -200,7 +200,7 @@ async def test_get_by_title(
             1,
             [
                 Movie(
-                    movie_id="someid1",
+                    id="someid1",
                     title="test_title",
                     description="test description",
                     release_year=1999,
@@ -211,19 +211,19 @@ async def test_get_by_title(
         pytest.param(
             [
                 Movie(
-                    movie_id="someid1",
+                    id="someid1",
                     title="test_title",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="someid2",
+                    id="someid2",
                     title="test_title",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="someid3",
+                    id="someid3",
                     title="test_title",
                     description="test description",
                     release_year=1999,
@@ -234,7 +234,7 @@ async def test_get_by_title(
             1,
             [
                 Movie(
-                    movie_id="someid2",
+                    id="someid2",
                     title="test_title",
                     description="test description",
                     release_year=1999,
@@ -262,19 +262,19 @@ async def test_get_by_title_pagination(
         pytest.param(
             [
                 Movie(
-                    movie_id="someid1",
+                    id="someid1",
                     title="test_title",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="someid2",
+                    id="someid2",
                     title="test_title",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="someid3",
+                    id="someid3",
                     title="test_title",
                     description="test description",
                     release_year=1999,
@@ -284,19 +284,19 @@ async def test_get_by_title_pagination(
             0,
             [
                 Movie(
-                    movie_id="someid1",
+                    id="someid1",
                     title="test_title",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="someid2",
+                    id="someid2",
                     title="test_title",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="someid3",
+                    id="someid3",
                     title="test_title",
                     description="test description",
                     release_year=1999,
@@ -307,19 +307,19 @@ async def test_get_by_title_pagination(
         pytest.param(
             [
                 Movie(
-                    movie_id="someid1",
+                    id="someid1",
                     title="test_title",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="someid2",
+                    id="someid2",
                     title="test_title",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="someid3",
+                    id="someid3",
                     title="test_title",
                     description="test description",
                     release_year=1999,
@@ -329,7 +329,7 @@ async def test_get_by_title_pagination(
             1,
             [
                 Movie(
-                    movie_id="someid1",
+                    id="someid1",
                     title="test_title",
                     description="test description",
                     release_year=1999,
@@ -340,19 +340,19 @@ async def test_get_by_title_pagination(
         pytest.param(
             [
                 Movie(
-                    movie_id="someid1",
+                    id="someid1",
                     title="test_title",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="someid2",
+                    id="someid2",
                     title="test_title",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="someid3",
+                    id="someid3",
                     title="test_title",
                     description="test description",
                     release_year=1999,
@@ -362,7 +362,7 @@ async def test_get_by_title_pagination(
             1,
             [
                 Movie(
-                    movie_id="someid2",
+                    id="someid2",
                     title="test_title",
                     description="test description",
                     release_year=1999,
@@ -373,25 +373,25 @@ async def test_get_by_title_pagination(
         pytest.param(
             [
                 Movie(
-                    movie_id="someid1",
+                    id="someid1",
                     title="test_title",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="someid2",
+                    id="someid2",
                     title="test_title",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="someid3",
+                    id="someid3",
                     title="test_title",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="someid4",
+                    id="someid4",
                     title="test_title",
                     description="test description",
                     release_year=1999,
@@ -401,25 +401,25 @@ async def test_get_by_title_pagination(
             1000,
             [
                 Movie(
-                    movie_id="someid1",
+                    id="someid1",
                     title="test_title",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="someid2",
+                    id="someid2",
                     title="test_title",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="someid3",
+                    id="someid3",
                     title="test_title",
                     description="test description",
                     release_year=1999,
                 ),
                 Movie(
-                    movie_id="someid4",
+                    id="someid4",
                     title="test_title",
                     description="test description",
                     release_year=1999,
@@ -443,7 +443,7 @@ async def test_get_all(
 async def test_update(mongo_movie_repo_fixture):
     await mongo_movie_repo_fixture.create(
         Movie(
-            movie_id="some id",
+            id="some id",
             title="some title",
             description="second desc",
             release_year=1992,
@@ -460,7 +460,7 @@ async def test_update(mongo_movie_repo_fixture):
         },
     )
     assert await mongo_movie_repo_fixture.get_by_id("some id") == Movie(
-        movie_id="some id",
+        id="some id",
         title="updated title",
         description="updated description",
         release_year=2000,
@@ -472,7 +472,7 @@ async def test_update(mongo_movie_repo_fixture):
 async def test_update_negative(mongo_movie_repo_fixture):
     await mongo_movie_repo_fixture.create(
         Movie(
-            movie_id="test title3",
+            id="test title3",
             title="same title",
             description="second desc",
             release_year=1992,
@@ -489,7 +489,7 @@ async def test_update_negative(mongo_movie_repo_fixture):
 async def test_delete(mongo_movie_repo_fixture):
     await mongo_movie_repo_fixture.create(
         Movie(
-            movie_id="test title3",
+            id="test title3",
             title="same title",
             description="second desc",
             release_year=1992,

@@ -3,25 +3,20 @@ import uuid
 
 from fastapi import APIRouter, Body, Depends, Query
 from fastapi.encoders import jsonable_encoder
-from starlette.responses import JSONResponse, Response
 from fastapi_versioning import versioned_api_route
+from starlette.responses import JSONResponse, Response
 
 from app.dto.detail import DetailResponse
-from app.dto.movie import (
-    CreateMovieBody,
-    MovieCreatedResponse,
-    MovieResponse,
-    MovieUpdateBody,
-)
+from app.dto.movie import (CreateMovieBody, MovieCreatedResponse,
+                           MovieResponse, MovieUpdateBody)
 from app.entities.movie import Movie
-from app.repository.movie.abstractions import MovieRepository, RepositoryException
-from app.handlers.handler_dependencies import movie_repository, pagination_params
+from app.handlers.handler_dependencies import (movie_repository,
+                                               pagination_params)
+from app.repository.movie.abstractions import (MovieRepository,
+                                               RepositoryException)
 
-router = APIRouter(
-    prefix="/movie",
-    tags=["movies"],
-    route_class=versioned_api_route(1)
-)
+router = APIRouter(prefix="/movie", tags=["movies"], route_class=versioned_api_route(1))
+
 
 @router.post("/", status_code=201, response_model=MovieCreatedResponse)
 async def post_create_movie(
@@ -34,7 +29,7 @@ async def post_create_movie(
 
     await repo.create(
         movie=Movie(
-            movie_id=movie_id,
+            id=movie_id,
             title=movie.title,
             description=movie.description,
             release_year=movie.release_year,
@@ -162,3 +157,5 @@ async def delete(movie_id: str, repo: MovieRepository = Depends(movie_repository
 
     await repo.delete(movie_id=movie_id)
     return Response(status_code=204)
+
+

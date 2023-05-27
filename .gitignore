@@ -214,11 +214,20 @@ fabric.properties
 
 # End of https://mrkandreev.name/snippets/gitignore-generator/#Python,Intellij
 
-/mike_w.jpg
+mike_w.jpg
 .idea
 
 # Auto-generated Documentation
 # Pydoc
 /html
+
+# Practice files
 app/handlers/demo.py
 app/tests/handlers/responses_section.py
+
+# Dev docker-compose for local mongo container
+docker-compose-dev.yaml
+
+# Env variables
+settings.env
+app/tests/pytest.ini
