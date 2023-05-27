@@ -58,8 +58,8 @@ async def get_all(
                 watched=movie.watched,
             )
         )
-    # FIXME: Gotta find a way to avoid iterating through the results to create MovieResponse objects individually
-    #  while keeping Pydantic happy.
+    # FIXME: Avoid iterating through the results to create MovieResponse
+    #  objects individually while keeping Pydantic happy.
     return movies_returned
 
 
@@ -70,7 +70,7 @@ async def get_all(
 async def get_movie_by_id(
     movie_id: str, repo: MovieRepository = Depends(movie_repository)
 ):
-    """Returns a movie if it exists, None if not."""
+    """Returns a movie if it exists, 404 if not."""
 
     movie = await repo.get_by_id(movie_id=movie_id)
     if movie is None:
@@ -92,12 +92,12 @@ async def get_movie_by_id(
 @router.get("/", response_model=typing.List[MovieResponse])
 async def get_movie_by_title(
     title: str = Query(
-        ..., title="Title", description="The title of the movie.", min_length=2
+        title="Title", description="The title of the movie.", min_length=2
     ),
     repo: MovieRepository = Depends(movie_repository),
     pagination=Depends(pagination_params),
 ):
-    """Returns movie by title."""
+    """Returns the list of movies sharing the given title."""
 
     movies = await repo.get_by_title(
         title=title, skip=pagination.skip, limit=pagination.limit
@@ -117,7 +117,8 @@ async def get_movie_by_title(
         return JSONResponse(
             status_code=404,
             content=jsonable_encoder(
-                DetailResponse(message=f'No movies titled "{title}" were found.')
+                DetailResponse(message=f'No movies titled {title} were found.')
+                # FIXME: Get rid of slashes in the resulting JSON message.
             ),
         )
     return movies_returned
@@ -134,7 +135,27 @@ async def update(
     ),
     repo: MovieRepository = Depends(movie_repository),
 ):
-    """Updates a movie."""
+    """Update a movie by ID.
+
+        Parameters
+        ----------
+        movie_id: str
+        update_parameters: dict
+            Desired Movie fields and their values.
+        repo: MovieRepository
+            The repo to be used; In-memory or MongoDB.
+
+        Returns
+        ------
+        HTTP 200
+            If movie update successful.
+
+        HTTP 200
+            If update parameters match the existing movie data.
+
+        HTTP 400
+            If movie ID not found.
+        """
 
     try:
         await repo.update(
@@ -143,7 +164,7 @@ async def update(
                 exclude_unset=True, exclude_none=True
             ),
         )
-        return DetailResponse(message=f"Movie {movie_id} updated.")
+        return DetailResponse(message=f"Movie with ID {movie_id} updated.")
 
     except RepositoryException as e:
         return JSONResponse(
@@ -153,7 +174,16 @@ async def update(
 
 @router.delete("/{movie_id}", status_code=204)
 async def delete(movie_id: str, repo: MovieRepository = Depends(movie_repository)):
-    """Deletes a movie."""
+    """Deletes a movie by ID.
+
+    Returns
+    ------
+    HTTP 204
+        If the movie was deleted successfully.
+
+    HTTP 204
+        If the movie ID was not found.
+    """
 
     await repo.delete(movie_id=movie_id)
     return Response(status_code=204)
