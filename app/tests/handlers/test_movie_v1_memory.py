@@ -5,6 +5,7 @@ import pytest
 from app.entities.movie import Movie
 from app.handlers.handler_dependencies import movie_repository
 from app.repository.movie.memory import MemoryMovieRepository
+
 # noinspection PyUnresolvedReferences
 from app.tests.fixtures import test_client
 

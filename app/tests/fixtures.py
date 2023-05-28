@@ -5,6 +5,7 @@ import pytest
 from starlette.testclient import TestClient
 
 from app.api import create_app
+from app.config import TestSettings, test_settings_instance
 from app.repository.movie.memory import MemoryMovieRepository
 from app.repository.movie.mongo import MongoMovieRepository
 
@@ -12,10 +13,14 @@ from app.repository.movie.mongo import MongoMovieRepository
 
 
 @pytest.fixture()
-def mongo_movie_repo_fixture():
+def mongo_movie_repo_fixture(
+    settings: TestSettings = lambda: test_settings_instance(),
+) -> MongoMovieRepository:
     random_database_name = secrets.token_hex(5)
     repo = MongoMovieRepository(
-        connection_string="mongodb://localhost:27017", database=random_database_name
+        connection_string=settings().mongo_connection_string,
+        database=random_database_name,
+        server_selection_timeout_ms=settings().server_selection_timeout_ms,
     )
     yield repo
 

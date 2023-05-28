@@ -1,6 +1,7 @@
 import pytest
 
 from app.entities.movie import Movie
+
 # noinspection PyUnresolvedReferences
 from app.tests.fixtures import test_client
 

@@ -4,16 +4,19 @@ import uuid
 from fastapi import APIRouter, Body, Depends, Query
 from fastapi.encoders import jsonable_encoder
 from fastapi_versioning import versioned_api_route
+from pymongo.errors import PyMongoError
 from starlette.responses import JSONResponse, Response
 
 from app.dto.detail import DetailResponse
-from app.dto.movie import (CreateMovieBody, MovieCreatedResponse,
-                           MovieResponse, MovieUpdateBody)
+from app.dto.movie import (
+    CreateMovieBody,
+    MovieCreatedResponse,
+    MovieResponse,
+    MovieUpdateBody,
+)
 from app.entities.movie import Movie
-from app.handlers.handler_dependencies import (movie_repository,
-                                               pagination_params)
-from app.repository.movie.abstractions import (MovieRepository,
-                                               RepositoryException)
+from app.handlers.handler_dependencies import movie_repository, pagination_params
+from app.repository.movie.abstractions import MovieRepository, RepositoryException
 
 router = APIRouter(prefix="/movie", tags=["movies"], route_class=versioned_api_route(1))
 
@@ -25,42 +28,30 @@ async def post_create_movie(
 ):
     """Creates a movie."""
 
-    movie_id = str(uuid.uuid4())
+    try:
+        movie_id = str(uuid.uuid4())
 
-    await repo.create(
-        movie=Movie(
-            id=movie_id,
-            title=movie.title,
-            description=movie.description,
-            release_year=movie.release_year,
-            watched=movie.watched,
-        )
-    )
-    return MovieCreatedResponse(id=movie_id)
-
-
-@router.get("/all", response_model=typing.List[MovieResponse])
-async def get_all(
-    repo: MovieRepository = Depends(movie_repository),
-    pagination=Depends(pagination_params),
-):
-    """Returns all the movies in the database."""
-
-    movies = await repo.get_all(skip=pagination.skip, limit=pagination.limit)
-    movies_returned = []
-    for movie in movies:
-        movies_returned.append(
-            MovieResponse(
-                id=movie.id,
+        await repo.create(
+            movie=Movie(
+                id=movie_id,
                 title=movie.title,
                 description=movie.description,
                 release_year=movie.release_year,
                 watched=movie.watched,
             )
         )
-    # FIXME: Avoid iterating through the results to create MovieResponse
-    #  objects individually while keeping Pydantic happy.
-    return movies_returned
+        return MovieCreatedResponse(id=movie_id)
+    except PyMongoError as _:
+        return JSONResponse(
+            status_code=500,
+            content=jsonable_encoder(
+                DetailResponse(
+                    message=str(
+                        "The database is currently unreachable. Please try again later."
+                    )
+                )
+            ),
+        )
 
 
 @router.get(
@@ -72,56 +63,107 @@ async def get_movie_by_id(
 ):
     """Returns a movie if it exists, 404 if not."""
 
-    movie = await repo.get_by_id(movie_id=movie_id)
-    if movie is None:
+    try:
+        movie = await repo.get_by_id(movie_id=movie_id)
+        if movie is None:
+            return JSONResponse(
+                status_code=404,
+                content=jsonable_encoder(
+                    DetailResponse(message=f"Movie with ID {movie_id} not found.")
+                ),
+            )
+        return MovieResponse(
+            id=movie.id,
+            title=movie.title,
+            description=movie.description,
+            release_year=movie.release_year,
+            watched=movie.watched,
+        )
+    except PyMongoError as _:
         return JSONResponse(
-            status_code=404,
+            status_code=500,
             content=jsonable_encoder(
-                DetailResponse(message=f"Movie with ID {movie_id} not found.")
+                DetailResponse(
+                    message=str(
+                        "The database is currently unreachable. Please try again later."
+                    )
+                )
             ),
         )
-    return MovieResponse(
-        id=movie.id,
-        title=movie.title,
-        description=movie.description,
-        release_year=movie.release_year,
-        watched=movie.watched,
-    )
 
 
-@router.get("/", response_model=typing.List[MovieResponse])
-async def get_movie_by_title(
-    title: str = Query(
-        title="Title", description="The title of the movie.", min_length=2
+@router.get(
+    "/",
+    responses={
+        200: {"model": typing.List[MovieResponse]},
+        404: {"model": DetailResponse},
+        500: {"model": DetailResponse},
+    },
+)
+async def get_movie_by_fields(
+    title: str
+    | None = Query(
+        None, title="Title", description="The title of the movie.", min_length=2
+    ),
+    release_year: int
+    | None = Query(
+        None,
+        title="Release Year",
+        description="The release year of the movie.",
+        gt=1894,
+    ),
+    watched: bool
+    | None = Query(
+        None, title="Watched", description="Whether the movie is watched or not"
     ),
     repo: MovieRepository = Depends(movie_repository),
     pagination=Depends(pagination_params),
 ):
-    """Returns the list of movies sharing the given title."""
+    """Returns the list of movies with the matching search parameters.
 
-    movies = await repo.get_by_title(
-        title=title, skip=pagination.skip, limit=pagination.limit
-    )
-    movies_returned = []
-    for movie in movies:
-        movies_returned.append(
-            MovieResponse(
-                id=movie.id,
-                title=movie.title,
-                description=movie.description,
-                release_year=movie.release_year,
-                watched=movie.watched,
-            )
+    Returns the list of all movies if no search parameters are given.
+    """
+
+    try:
+        movies = await repo.get_by_fields(
+            title=title,
+            release_year=release_year,
+            watched=watched,
+            skip=pagination.skip,
+            limit=pagination.limit,
         )
-    if not movies_returned:
+        movies_returned = []
+        for movie in movies:
+            movies_returned.append(
+                MovieResponse(
+                    id=movie.id,
+                    title=movie.title,
+                    description=movie.description,
+                    release_year=movie.release_year,
+                    watched=movie.watched,
+                )
+            )
+        if not movies_returned:
+            return JSONResponse(
+                status_code=404,
+                content=jsonable_encoder(
+                    DetailResponse(
+                        message="No movies with the given parameters were found."
+                    )
+                ),
+            )
+        return movies_returned
+    except PyMongoError as _:
         return JSONResponse(
-            status_code=404,
+            status_code=500,
             content=jsonable_encoder(
-                DetailResponse(message=f'No movies titled {title} were found.')
-                # FIXME: Get rid of slashes in the resulting JSON message.
+                DetailResponse(
+                    message=str(
+                        "The database is currently unreachable. Please try again later."
+                    )
+                )
             ),
         )
-    return movies_returned
 
 
 @router.patch(
@@ -137,25 +179,25 @@ async def update(
 ):
     """Update a movie by ID.
 
-        Parameters
-        ----------
-        movie_id: str
-        update_parameters: dict
-            Desired Movie fields and their values.
-        repo: MovieRepository
-            The repo to be used; In-memory or MongoDB.
+    Parameters
+    ----------
+    movie_id: str
+    update_parameters: dict
+        Desired Movie fields and their values.
+    repo: MovieRepository
+        The repo to be used; In-memory or MongoDB.
 
-        Returns
-        ------
-        HTTP 200
-            If movie update successful.
+    Returns
+    ------
+    HTTP 200
+        If movie update successful.
 
-        HTTP 200
-            If update parameters match the existing movie data.
+    HTTP 200
+        If update parameters match the existing movie data.
 
-        HTTP 400
-            If movie ID not found.
-        """
+    HTTP 400
+        If movie ID not found.
+    """
 
     try:
         await repo.update(
@@ -169,6 +211,17 @@ async def update(
     except RepositoryException as e:
         return JSONResponse(
             status_code=400, content=jsonable_encoder(DetailResponse(message=str(e)))
+        )
+    except PyMongoError as _:
+        return JSONResponse(
+            status_code=500,
+            content=jsonable_encoder(
+                DetailResponse(
+                    message=str(
+                        "The database is currently unreachable. Please try again later."
+                    )
+                )
+            ),
         )
 
 
@@ -185,5 +238,17 @@ async def delete(movie_id: str, repo: MovieRepository = Depends(movie_repository
         If the movie ID was not found.
     """
 
-    await repo.delete(movie_id=movie_id)
-    return Response(status_code=204)
+    try:
+        await repo.delete(movie_id=movie_id)
+        return Response(status_code=204)
+    except PyMongoError as _:
+        return JSONResponse(
+            status_code=500,
+            content=jsonable_encoder(
+                DetailResponse(
+                    message=str(
+                        "The database is currently unreachable. Please try again later."
+                    )
+                )
+            ),
+        )

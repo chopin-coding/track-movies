@@ -231,3 +231,5 @@ docker-compose-dev.yaml
 # Env variables
 settings.env
 app/tests/pytest.ini
+app/tests/repository/movie/test_settings.env
+test_settings.env

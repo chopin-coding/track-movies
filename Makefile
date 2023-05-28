@@ -1,5 +1,5 @@
 generate-docs:
-	pdoc3 --html --force api
+	pdoc3 --html --force app
 
 test:
 	pytest .
@@ -7,5 +7,5 @@ test:
 fmt:
 	black .
 	isort -rc .
-	autoflake --in-place -r api
+	autoflake --in-place -r app
 

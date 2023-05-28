@@ -23,15 +23,15 @@ class MovieRepository(abc.ABC):
         """Retrieves a movie by its ID"""
         raise NotImplementedError
 
-    async def get_by_title(
-        self, title: str, skip: int = 0, limit: int = 1000
+    async def get_by_fields(
+        self,
+        title: str = None,
+        release_year: int = None,
+        watched: bool = None,
+        skip: int = 0,
+        limit: int = 1000,
     ) -> typing.List[Movie]:
         """Returns a list of movies that share the same title."""
-
-        raise NotImplementedError
-
-    async def get_all(self, skip: int = 0, limit: int = 1000) -> typing.List[Movie]:
-        """Returns the list of all the movies in the DB."""
 
         raise NotImplementedError
 

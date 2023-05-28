@@ -1,8 +1,7 @@
 import typing
 
 from app.entities.movie import Movie
-from app.repository.movie.abstractions import (MovieRepository,
-                                               RepositoryException)
+from app.repository.movie.abstractions import MovieRepository, RepositoryException
 
 
 class MemoryMovieRepository(MovieRepository):
@@ -24,25 +23,43 @@ class MemoryMovieRepository(MovieRepository):
 
         return self._storage.get(movie_id)
 
-    async def get_by_title(
-        self, title: str, skip: int = 0, limit: int = 1000
+    async def get_by_fields(
+        self,
+        title: str = None,
+        release_year: int = None,
+        watched: bool = None,
+        skip: int = 0,
+        limit: int = 1000,
     ) -> typing.List[Movie]:
         """Returns the list of movies that share the same title."""
 
-        matched = []
-        for _, value in self._storage.items():
-            if title == value.title:
-                matched.append(value)
-        if limit == 0:
-            return matched[skip:]
-        return matched[skip : skip + limit]
+        parameters = {
+            "title": title,
+            "release_year": release_year,
+            "watched": watched,
+        }
 
-    async def get_all(self, skip: int = 0, limit: int = 1000) -> typing.List[Movie]:
-        if limit == 0:
-            all_movies = list(self._storage.values())[skip:]
-            return all_movies
-        all_movies = list(self._storage.values())[skip : skip + limit]
-        return all_movies
+        search_parameters = {
+            field: value for field, value in parameters.items() if value is not None
+        }
+
+        if not search_parameters:
+            matched = [list(self._storage.values())[skip : skip + limit]]
+            if limit == 0:
+                return matched[skip:]
+            return matched[skip : skip + limit]
+        else:
+            matched = [
+                movie
+                for _, movie in self._storage.items()
+                if all(
+                    getattr(movie, field) == search_parameters[field]
+                    for field, _ in search_parameters.items()
+                )
+            ]
+            if limit == 0:
+                return matched[skip:]
+            return matched[skip : skip + limit]
 
     async def update(self, movie_id: str, update_parameters: dict):
         """Update a movie by ID.

@@ -14,6 +14,7 @@ def _make_movie_repository(settings: Settings) -> MovieRepository:
     return MongoMovieRepository(
         connection_string=settings.mongo_connection_string,
         database=settings.mongo_database_name,
+        server_selection_timeout_ms=settings.server_selection_timeout_ms,
     )
 
 

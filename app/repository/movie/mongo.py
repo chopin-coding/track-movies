@@ -4,8 +4,7 @@ import motor.motor_asyncio
 
 from app.dto.detail import DetailResponse
 from app.entities.movie import Movie
-from app.repository.movie.abstractions import (MovieRepository,
-                                               RepositoryException)
+from app.repository.movie.abstractions import MovieRepository, RepositoryException
 
 
 class MongoMovieRepository(MovieRepository):
@@ -15,10 +14,13 @@ class MongoMovieRepository(MovieRepository):
         self,
         connection_string: str,
         database: str,
+        server_selection_timeout_ms: float,
     ):
         """Initialize using the env variables passed."""
 
-        self._client = motor.motor_asyncio.AsyncIOMotorClient(connection_string)
+        self._client = motor.motor_asyncio.AsyncIOMotorClient(
+            connection_string, serverSelectionTimeoutMS=server_selection_timeout_ms
+        )
         self._database = self._client[database]
         self._movies = self._database["movies"]
 
@@ -55,29 +57,33 @@ class MongoMovieRepository(MovieRepository):
             )
         return None
 
-    async def get_by_title(
-        self, title: str, skip: int = 0, limit: int = 1000
+    async def get_by_fields(
+        self,
+        title: str = None,
+        release_year: int = None,
+        watched: bool = None,
+        skip: int = 0,
+        limit: int = 1000,
     ) -> typing.List[Movie]:
-        """Returns the list of movies sharing the given title."""
+        """Returns the list of movies with the matching search parameters.
+
+        Returns the list of all movies if no search parameters are given.
+        """
 
         return_value: typing.List[Movie] = []
-        document_cursor = self._movies.find({"title": title}).skip(skip).limit(limit)
+
+        search_fields = {
+            "title": title,
+            "release_year": release_year,
+            "watched": watched,
+        }.items()
+
+        search_parameters = {
+            field: value for field, value in search_fields if value is not None
+        }
+
+        document_cursor = self._movies.find(search_parameters).skip(skip).limit(limit)
         async for document in document_cursor:
-            return_value.append(
-                Movie(
-                    id=document.get("id"),
-                    title=document.get("title"),
-                    description=document.get("description"),
-                    release_year=document.get("release_year"),
-                    watched=document.get("watched"),
-                )
-            )
-        return return_value
-
-    async def get_all(self, skip: int = 0, limit: int = 1000) -> typing.List[Movie]:
-        return_value: typing.List[Movie] = []
-        documents = self._movies.find().skip(skip).limit(limit)
-        async for document in documents:
             return_value.append(
                 Movie(
                     id=document.get("id"),
