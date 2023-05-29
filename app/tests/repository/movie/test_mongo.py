@@ -77,7 +77,7 @@ async def test_get_by_id(
 @pytest.mark.parametrize(
     "input_movies, searched_title, expected_result",
     [
-        pytest.param([], "non existent movie", [], id="no input"),
+        pytest.param([], "non existent movie", ([], 0), id="no input"),
         pytest.param(
             [
                 Movie(
@@ -96,22 +96,25 @@ async def test_get_by_id(
                 ),
             ],
             "same title",
-            [
-                Movie(
-                    id="test title2",
-                    title="same title",
-                    description="second desc",
-                    release_year=1992,
-                    watched=True,
-                ),
-                Movie(
-                    id="test title3",
-                    title="same title",
-                    description="second desc",
-                    release_year=1992,
-                    watched=True,
-                ),
-            ],
+            (
+                [
+                    Movie(
+                        id="test title2",
+                        title="same title",
+                        description="second desc",
+                        release_year=1992,
+                        watched=True,
+                    ),
+                    Movie(
+                        id="test title3",
+                        title="same title",
+                        description="second desc",
+                        release_year=1992,
+                        watched=True,
+                    ),
+                ],
+                2,
+            ),
             id="two inputs with the same title",
         ),
     ],
@@ -122,10 +125,10 @@ async def test_get_by_fields(
 ):
     for movie in input_movies:
         await mongo_movie_repo_fixture.create(movie)
-    movie: List[Movie] = await mongo_movie_repo_fixture.get_by_fields(
+    response: tuple[list[Movie], int] = await mongo_movie_repo_fixture.get_by_fields(
         title=searched_title
     )
-    assert movie == expected_result
+    assert response == expected_result
 
 
 # noinspection DuplicatedCode
@@ -156,26 +159,29 @@ async def test_get_by_fields(
             "test_title",
             0,
             0,
-            [
-                Movie(
-                    id="someid1",
-                    title="test_title",
-                    description="test description",
-                    release_year=1999,
-                ),
-                Movie(
-                    id="someid2",
-                    title="test_title",
-                    description="test description",
-                    release_year=1999,
-                ),
-                Movie(
-                    id="someid3",
-                    title="test_title",
-                    description="test description",
-                    release_year=1999,
-                ),
-            ],
+            (
+                [
+                    Movie(
+                        id="someid1",
+                        title="test_title",
+                        description="test description",
+                        release_year=1999,
+                    ),
+                    Movie(
+                        id="someid2",
+                        title="test_title",
+                        description="test description",
+                        release_year=1999,
+                    ),
+                    Movie(
+                        id="someid3",
+                        title="test_title",
+                        description="test description",
+                        release_year=1999,
+                    ),
+                ],
+                3,
+            ),
             id="Skip 0, Limit 0",
         ),
         pytest.param(
@@ -202,14 +208,17 @@ async def test_get_by_fields(
             "test_title",
             0,
             1,
-            [
-                Movie(
-                    id="someid1",
-                    title="test_title",
-                    description="test description",
-                    release_year=1999,
-                )
-            ],
+            (
+                [
+                    Movie(
+                        id="someid1",
+                        title="test_title",
+                        description="test description",
+                        release_year=1999,
+                    )
+                ],
+                3,
+            ),
             id="Skip 0, Limit 1",
         ),
         pytest.param(
@@ -236,14 +245,17 @@ async def test_get_by_fields(
             "test_title",
             1,
             1,
-            [
-                Movie(
-                    id="someid2",
-                    title="test_title",
-                    description="test description",
-                    release_year=1999,
-                )
-            ],
+            (
+                [
+                    Movie(
+                        id="someid2",
+                        title="test_title",
+                        description="test description",
+                        release_year=1999,
+                    )
+                ],
+                3,
+            ),
             id="Skip 1, Limit 1",
         ),
     ],
@@ -254,10 +266,10 @@ async def test_get_by_title_pagination(
 ):
     for movie in movies_seed:
         await mongo_movie_repo_fixture.create(movie)
-    movie = await mongo_movie_repo_fixture.get_by_fields(
+    response = await mongo_movie_repo_fixture.get_by_fields(
         title=movie_title, skip=skip, limit=limit
     )
-    assert movie == expected_result
+    assert response == expected_result
 
 
 @pytest.mark.asyncio

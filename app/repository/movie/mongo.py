@@ -2,7 +2,6 @@ import typing
 
 import motor.motor_asyncio
 
-from app.dto.detail import DetailResponse
 from app.entities.movie import Movie
 from app.repository.movie.abstractions import MovieRepository, RepositoryException
 
@@ -64,13 +63,13 @@ class MongoMovieRepository(MovieRepository):
         watched: bool = None,
         skip: int = 0,
         limit: int = 1000,
-    ) -> typing.List[Movie]:
+    ) -> tuple[list[Movie], int]:
         """Returns the list of movies with the matching search parameters.
 
         Returns the list of all movies if no search parameters are given.
         """
 
-        return_value: typing.List[Movie] = []
+        return_value: list[Movie] = []
 
         search_fields = {
             "title": title,
@@ -82,6 +81,7 @@ class MongoMovieRepository(MovieRepository):
             field: value for field, value in search_fields if value is not None
         }
 
+        total_count_cursor: int = await self._movies.count_documents(search_parameters)
         document_cursor = self._movies.find(search_parameters).skip(skip).limit(limit)
         async for document in document_cursor:
             return_value.append(
@@ -93,7 +93,7 @@ class MongoMovieRepository(MovieRepository):
                     watched=document.get("watched"),
                 )
             )
-        return return_value
+        return return_value, total_count_cursor
 
     async def update(self, movie_id: str, update_parameters: dict):
         """Update a movie by ID.

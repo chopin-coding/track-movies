@@ -13,6 +13,7 @@ from app.dto.movie import (
     MovieCreatedResponse,
     MovieResponse,
     MovieUpdateBody,
+    MovieResponseWithCount,
 )
 from app.entities.movie import Movie
 from app.handlers.handler_dependencies import movie_repository, pagination_params
@@ -119,22 +120,23 @@ async def get_movie_by_fields(
     repo: MovieRepository = Depends(movie_repository),
     pagination=Depends(pagination_params),
 ):
-    """Returns the list of movies with the matching search parameters.
+    """Returns the list of movies with the matching search parameters
+     and their total count regardless of pagination.
 
     Returns the list of all movies if no search parameters are given.
     """
 
     try:
-        movies = await repo.get_by_fields(
+        movies, total_count = await repo.get_by_fields(
             title=title,
             release_year=release_year,
             watched=watched,
             skip=pagination.skip,
             limit=pagination.limit,
         )
-        movies_returned = []
+        movies_to_return = []
         for movie in movies:
-            movies_returned.append(
+            movies_to_return.append(
                 MovieResponse(
                     id=movie.id,
                     title=movie.title,
@@ -143,7 +145,7 @@ async def get_movie_by_fields(
                     watched=movie.watched,
                 )
             )
-        if not movies_returned:
+        if not movies_to_return:
             return JSONResponse(
                 status_code=404,
                 content=jsonable_encoder(
@@ -152,7 +154,8 @@ async def get_movie_by_fields(
                     )
                 ),
             )
-        return movies_returned
+        response = MovieResponseWithCount(movies=movies_to_return, count=total_count)
+        return response
     except PyMongoError as _:
         return JSONResponse(
             status_code=500,

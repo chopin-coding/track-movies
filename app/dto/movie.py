@@ -45,6 +45,11 @@ class MovieResponse(MovieCreatedResponse):
     watched: bool = False
 
 
+class MovieResponseWithCount(BaseModel):
+    movies: list[MovieResponse]
+    count: int
+
+
 class MovieUpdateBody(BaseModel):
     # TODO: Implement the validations of the CreateMovieBody class to this class as well, and any other
     #  validations that may be necessary.

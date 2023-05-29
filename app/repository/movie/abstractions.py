@@ -3,12 +3,6 @@ import typing
 
 from app.entities.movie import Movie
 
-# CRUD
-# C - Create
-# R - Read
-# U - Update
-# D - Delete
-
 
 class RepositoryException(Exception):
     pass
@@ -30,7 +24,7 @@ class MovieRepository(abc.ABC):
         watched: bool = None,
         skip: int = 0,
         limit: int = 1000,
-    ) -> typing.List[Movie]:
+    ) -> tuple[list[Movie], int]:
         """Returns a list of movies that share the same title."""
 
         raise NotImplementedError
