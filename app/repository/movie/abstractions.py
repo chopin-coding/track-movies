@@ -7,6 +7,9 @@ from app.entities.movie import Movie
 class RepositoryException(Exception):
     pass
 
+class RepositoryMovieNotFoundException(Exception):
+    pass
+
 
 class MovieRepository(abc.ABC):
     async def create(self, movie: Movie) -> bool:

@@ -3,7 +3,7 @@ import typing
 import motor.motor_asyncio
 
 from app.entities.movie import Movie
-from app.repository.movie.abstractions import MovieRepository, RepositoryException
+from app.repository.movie.abstractions import MovieRepository, RepositoryException, RepositoryMovieNotFoundException
 
 
 class MongoMovieRepository(MovieRepository):
@@ -119,7 +119,7 @@ class MongoMovieRepository(MovieRepository):
             {"id": movie_id}, {"$set": update_parameters}
         )
         if result.matched_count == 0:
-            raise RepositoryException(f'movie with ID "{movie_id}" not found.')
+            raise RepositoryMovieNotFoundException(f'movie with ID "{movie_id}" not found.')
 
     async def delete(self, movie_id: str):
         """Deletes a movie by ID."""

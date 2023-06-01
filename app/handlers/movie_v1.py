@@ -17,7 +17,7 @@ from app.dto.movie import (
 )
 from app.entities.movie import Movie
 from app.handlers.handler_dependencies import movie_repository, pagination_params
-from app.repository.movie.abstractions import MovieRepository, RepositoryException
+from app.repository.movie.abstractions import MovieRepository, RepositoryException, RepositoryMovieNotFoundException
 
 router = APIRouter(prefix="/movie", tags=["movies"], route_class=versioned_api_route(1))
 
@@ -171,7 +171,7 @@ async def get_movie_by_fields(
 
 @router.patch(
     "/{movie_id}",
-    responses={200: {"model": DetailResponse}, 400: {"model": DetailResponse}},
+    responses={200: {"model": DetailResponse}, 400: {"model": DetailResponse}, 404: {"model": DetailResponse}},
 )
 async def update(
     movie_id: str,
@@ -198,7 +198,7 @@ async def update(
     HTTP 200
         If update parameters match the existing movie data.
 
-    HTTP 400
+    HTTP 404
         If movie ID not found.
     """
 
@@ -214,6 +214,10 @@ async def update(
     except RepositoryException as e:
         return JSONResponse(
             status_code=400, content=jsonable_encoder(DetailResponse(message=str(e)))
+        )
+    except RepositoryMovieNotFoundException as e:
+        return JSONResponse(
+            status_code=404, content=jsonable_encoder(DetailResponse(message=str(e)))
         )
     except PyMongoError as _:
         return JSONResponse(
