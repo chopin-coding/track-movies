@@ -1,5 +1,5 @@
 # track-movies
-A containerized, scalable, stateless movie-tracker API using FastAPI and MongoDB. Created this as a personal project following a Udemy course. The frontend is at https://github.com/chopin-coding/track-movies-frontend.
+A containerized, scalable, stateless movie-tracker API using FastAPI and MongoDB. Created this as a small personal portfolio project. The frontend is at https://github.com/chopin-coding/track-movies-frontend.
 
 1. Install the requirements in `requirements.txt`.
 2. Run a MongoDB server (e.g. a docker container).
