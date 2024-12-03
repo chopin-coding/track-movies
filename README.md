@@ -1,5 +1,5 @@
 # track-movies
-A containerized, scalable, stateless movie-tracker API using FastAPI and MongoDB. Created this as a small personal portfolio project.
+A containerized, scalable, stateless movie-tracker API using FastAPI and MongoDB.
 
 1. Install the requirements in `requirements.txt`.
 2. Run a MongoDB server (e.g. a docker container).
